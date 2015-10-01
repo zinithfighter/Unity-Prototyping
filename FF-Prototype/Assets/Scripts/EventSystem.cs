@@ -1,16 +1,37 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
- 
+using System;
 
 public class EventSystem : Singleton<EventSystem> //must have monobehaviour or everyone will have to create an eventsystem object
-{ 
+{
+    private class Listener
+    {
+        
+        public string _event;
+        public ISubscriber _sub;
+        
+        public Listener()
+        {
+
+        }
+
+        public Listener(string e, ISubscriber s)
+        {
+            this._event = e;
+            this._sub = s;
+        }
+        
+    }
     //a static reference to this eventsystem    
-   Dictionary<string, ISubscriber> _subscribers;
+    //key is the event
+    //value is the subscriber
+
+    private List<Listener> _subscribers = new List<Listener>();
     protected override void Awake()
     {
         base.Awake();
-        _subscribers = new Dictionary<string, ISubscriber>();
+         
     }
  
     //if anyone is subscribed to that message
@@ -22,12 +43,13 @@ public class EventSystem : Singleton<EventSystem> //must have monobehaviour or e
     }
 
     private void NotifySubs(string message)
-    {
-        foreach (KeyValuePair<string, ISubscriber> s in _subscribers)
+    {        
+        foreach (Listener l in _subscribers)
         {
-            if (_subscribers.ContainsKey(message))
+            if (l._event == message)
             {
-                s.Value.Receive(message);
+                Debug.Log("notify subs " + l._event);
+                l._sub.Receive(message);
             }
         }
     }
@@ -48,7 +70,12 @@ public class EventSystem : Singleton<EventSystem> //must have monobehaviour or e
 
     private void AddListener(string e, ISubscriber sub)
     {
-        _subscribers.Add(e, sub);
+        
+        Listener l = new Listener(e, sub); 
+        _subscribers.Add(l);
+        Debug.Log("add listener " + e);
+
+
     }
 
     void RemoveSubscriber(string e, ISubscriber go)

@@ -29,7 +29,7 @@ public class Test : MonoBehaviour, IPublisher
     {
         if(Input.GetKeyDown(KeyCode.A))
         {
-            Publish("init->start");            
+            combats.ChangeState(Combat.State.START);
         }
         if(Input.GetKeyDown(KeyCode.T))
         {
