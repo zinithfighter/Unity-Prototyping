@@ -3,7 +3,7 @@ using System.Collections;
 using System;
 
 public class PublishButton : MonoBehaviour, IPublisher
-{  
+{
     void Awake()
     {
         GetComponent<UnityEngine.UI.Button>().onClick.AddListener(PublishButtonClicked);
@@ -14,6 +14,6 @@ public class PublishButton : MonoBehaviour, IPublisher
     }
     public void Publish(string e)
     {
-        EventSystem.Notify(e);
+        EventSystem.Broadcast(e);
     }
 }

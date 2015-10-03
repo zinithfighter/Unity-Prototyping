@@ -1,34 +1,40 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
- 
 
-public class EventSystem : Singleton<EventSystem> //must have monobehaviour or everyone will have to create an eventsystem object
-{ 
-    //a static reference to this eventsystem    
-   Dictionary<string, ISubscriber> _subscribers;
-    protected override void Awake()
-    {
-        base.Awake();
-        _subscribers = new Dictionary<string, ISubscriber>();
-    }
- 
-    //if anyone is subscribed to that message
-    //then notify them that the message happened
-    static public void Notify(string message)
+
+static public class EventSystem
+{
+
+
+    /// <summary>
+    /// Notify all the subscribers that a message has occurred
+    /// </summary>
+    /// <param name="message"></param>
+    static public void Broadcast(string message)
     {
         Debug.Log("Event Broadcast: " + message);
-        instance.NotifySubs(message);        
     }
 
-    private void NotifySubs(string message)
+
+
+    static private void RemoveSubscriber(ISubscriber go)
     {
-        foreach (KeyValuePair<string, ISubscriber> s in _subscribers)
+
+    }
+
+    static private List<Subscriber> _subscribers = new List<Subscriber>();
+
+    static public List<string> Subscribers
+    {
+        get
         {
-            if (_subscribers.ContainsKey(message))
-            {
-                s.Value.Receive(message);
-            }
+            List<string> subsAsString = new List<string>();
+
+            foreach (Subscriber s in _subscribers)
+                subsAsString.Add(s.SubscriberInfo);
+
+            return subsAsString;
         }
     }
 
@@ -38,25 +44,37 @@ public class EventSystem : Singleton<EventSystem> //must have monobehaviour or e
     /// <param name="t">the type of message</param>
     /// <param name="e">the message to listen for</param>
     /// <param name="sub">the object that implements the interface</param>
-    static public void AddSubscriber(string t, string e, ISubscriber sub)
+    static public void Subscribe(MessageType t, string e, Callback c, ISubscriber s)
     {
-        string type = t;
-        string message = e;
-        string subscription = type + ":" + message;
-        instance.AddListener(subscription, sub);
-    }
 
-    private void AddListener(string e, ISubscriber sub)
-    {
-        _subscribers.Add(e, sub);
-    }
-
-    void RemoveSubscriber(string e, ISubscriber go)
-    {
+        Subscriber sub = new Subscriber(t, e, c, s);
+        _subscribers.Add(sub);
 
     }
 
+    private class Subscriber
+    {
+        private MessageType type;
+        private string message;
+        private Callback callback;
+        private ISubscriber sub;
 
+        public Subscriber(MessageType t, string m, Callback c, ISubscriber s)
+        {
+            type = t;
+            sub = s;
+            callback = c;
+            message = m;
+        }
+
+        public string SubscriberInfo
+        {
+            get
+            {
+                return sub.ToString() + ":" + type.ToString() +":" + message.ToString();
+            }
+        }
+    }
 
 }
 

@@ -39,6 +39,6 @@ public class Test : MonoBehaviour, IPublisher
 
     public void Publish(string e)
     {
-        EventSystem.Notify(e);
+        EventSystem.Broadcast(e);
     }
 }

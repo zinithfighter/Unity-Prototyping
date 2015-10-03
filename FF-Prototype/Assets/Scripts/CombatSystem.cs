@@ -44,7 +44,7 @@ namespace Combat
         {
             string type = "combat";
             string message = type + ":" + e;
-            EventSystem.Notify(message);
+            EventSystem.Broadcast(message);
         }
 
         public void ChangeState(State s)

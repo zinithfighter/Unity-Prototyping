@@ -459,7 +459,7 @@ PlayerSettings:
   WebGL::template: APPLICATION:Default
   additionalIl2CppArgs::additionalIl2CppArgs: 
   firstStreamedSceneWithResources: 0
-  cloudProjectId: 
-  projectName: 
-  organizationId: 
+  cloudProjectId: 482b2bcf-a2ad-4e3f-95a7-2ba6771f1574
+  projectName: FF-Prototype
+  organizationId: lfsmwilliamson
   cloudEnabled: 0

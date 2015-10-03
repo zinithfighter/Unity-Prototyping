@@ -1,10 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-
 public class FiniteStateMachine<T>
 {
-    public delegate void Handler();
+    
 
     private List<string> _validTransistions = new List<string>();
 
@@ -17,8 +16,6 @@ public class FiniteStateMachine<T>
         get;
         private set;
     }
-
-
 
     private Dictionary<string, Handler> _transitionHandlers = new Dictionary<string, Handler>();
     public void AddTransition(T from, T to, Handler h /* , Trigger t*/)
@@ -46,7 +43,7 @@ public class FiniteStateMachine<T>
     public bool ChangeState(T to)
     {
         Debug.Log("ChangeState! " + currentState.ToString() +"->"+  to.ToString());
-        if (CheckTransition(currentState, to)) //if it's a valid state
+        if (CheckTransition(currentState, to)) //if it's in the dictionary
         {
             string transitionName = currentState.ToString().ToLower() + "->" + to.ToString().ToLower();
             _transitionHandlers[transitionName]();
