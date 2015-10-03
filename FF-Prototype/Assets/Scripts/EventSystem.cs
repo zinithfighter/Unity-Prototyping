@@ -14,7 +14,7 @@ static public class EventSystem
     static public void Broadcast(string message)
     {
         Debug.Log("Event Broadcast: " + message);
-    } 
+    }
 
     static private void RemoveSubscriber(ISubscriber go)
     {
@@ -43,14 +43,16 @@ static public class EventSystem
     /// <param name="t">the type of message</param>
     /// <param name="e">the message to listen for</param>
     /// <param name="sub">the object that implements the interface</param>
-    static public void Subscribe(MessageType t, string e, Callback c, ISubscriber s)
+    static public bool Subscribe(MessageType t, string e, Callback c, ISubscriber sub)
     {
-
-
-        Subscriber sub = new Subscriber(t, e, c, s);
-        _subscribers.Add(sub);
-
-
+        Subscriber subscriber = new Subscriber(t, e, c, sub);
+        foreach (Subscriber s in _subscribers)
+        {
+            if (s.SubscriberInfo == subscriber.SubscriberInfo)
+                return false;
+        }
+        _subscribers.Add(subscriber);
+        return true;
     }
 
     private class Subscriber
@@ -72,7 +74,7 @@ static public class EventSystem
         {
             get
             {
-                return sub.ToString() + ":" + type.ToString() +":" + message.ToString();
+                return sub.ToString() + ":" + type.ToString() + ":" + message.ToString();
             }
         }
     }
