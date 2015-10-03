@@ -14,9 +14,7 @@ static public class EventSystem
     static public void Broadcast(string message)
     {
         Debug.Log("Event Broadcast: " + message);
-    }
-
-
+    } 
 
     static private void RemoveSubscriber(ISubscriber go)
     {
@@ -35,6 +33,7 @@ static public class EventSystem
                 subsAsString.Add(s.SubscriberInfo);
 
             return subsAsString;
+
         }
     }
 
@@ -47,8 +46,10 @@ static public class EventSystem
     static public void Subscribe(MessageType t, string e, Callback c, ISubscriber s)
     {
 
+
         Subscriber sub = new Subscriber(t, e, c, s);
         _subscribers.Add(sub);
+
 
     }
 
