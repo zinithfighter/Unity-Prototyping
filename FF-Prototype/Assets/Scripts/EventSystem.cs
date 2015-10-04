@@ -11,9 +11,16 @@ static public class EventSystem
     /// Notify all the subscribers that a message has occurred
     /// </summary>
     /// <param name="message"></param>
-    static public void Broadcast(string message)
+    static public void Broadcast(MessageType m, string e)
     {
+        string message = format(m, e);
         Debug.Log("Event Broadcast: " + message);
+        Subscriber s;
+        if (eventTable.TryGetValue(message, out s))
+        {
+            Debug.Log("execute " + message);
+            s.Invoke();
+        }
     }
 
     static private void RemoveSubscriber(ISubscriber go)
@@ -23,6 +30,7 @@ static public class EventSystem
 
     static private List<Subscriber> _subscribers = new List<Subscriber>();
 
+    static private Dictionary<string, Subscriber> eventTable = new Dictionary<string, Subscriber>();
     static public List<string> Subscribers
     {
         get
@@ -43,18 +51,25 @@ static public class EventSystem
     /// <param name="t">the type of message</param>
     /// <param name="e">the message to listen for</param>
     /// <param name="sub">the object that implements the interface</param>
-    static public bool Subscribe(MessageType t, string e, Callback c, ISubscriber sub)
+    static public bool Subscribe(MessageType t, string e, Callback c, ISubscriber s)
     {
-        Subscriber subscriber = new Subscriber(t, e, c, sub);
-        foreach (Subscriber s in _subscribers)
+        Subscriber sub = new Subscriber(t, e, c, s);
+        foreach (Subscriber ss in _subscribers)
         {
-            if (s.SubscriberInfo == subscriber.SubscriberInfo)
+            if (ss.SubscriberInfo == sub.SubscriberInfo)
                 return false;
         }
-        _subscribers.Add(subscriber);
+
+        eventTable.Add(format(t, e), sub);
+        _subscribers.Add(sub);
+
         return true;
     }
 
+    static public string format(MessageType t, string m)
+    {
+        return t.ToString().ToLower() +":"+ m.ToLower();
+    }
     private class Subscriber
     {
         private MessageType type;
@@ -70,13 +85,34 @@ static public class EventSystem
             message = m;
         }
 
+        public string Message
+        {
+            get
+            {
+                return message.ToLower();
+            }
+        }
+
+        public string Name
+        {
+            get
+            {
+                return sub.ToString();
+            }
+        }
         public string SubscriberInfo
         {
             get
             {
-                return sub.ToString() + ":" + type.ToString() + ":" + message.ToString();
+                return this.Name + ":" + format(type, message);
             }
         }
+
+        public void Invoke()
+        {
+            callback();
+        }
+
     }
 
 }

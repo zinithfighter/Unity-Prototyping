@@ -3,5 +3,5 @@ using System.Collections;
 
 public interface IPublisher
 {
-    void Publish(string e);
+    void Publish(MessageType m,  string e);
 }

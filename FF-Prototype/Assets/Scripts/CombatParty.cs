@@ -2,9 +2,16 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class CombatParty : MonoBehaviour {
+public class CombatParty : MonoBehaviour
+{
+    [SerializeField]
+    private List<GameObject> _partyMembers;
+    [SerializeField]
+    private CombatUnit _currentUnit;
+    [SerializeField]
+    private bool active;
+    private int currentUnitIndex;
 
-    public List<GameObject> _partyMembers;
     void Awake()
     {
         if(_partyMembers.Count == 0)
@@ -15,7 +22,37 @@ public class CombatParty : MonoBehaviour {
                     _partyMembers.Add(t.gameObject);
             }
         }
+
+        active = false;
+        _currentUnit = _partyMembers[currentUnitIndex].GetComponent<CombatUnit>();
+        
+        
     }
 
+    public void SetActive(bool s)
+    {
+        if (s) active = true;
+        else active = false;
+
+    } 
+    
+    void Start()
+    {
+
+    }
+
+    void Update()
+    {
+        if(active)
+        {
+            StartCombat();
+        }
+    }
+    
+    void StartCombat()
+    {
+        _currentUnit.SetState(true);
+
+    }
    
 }

@@ -1,9 +1,11 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System;
+
 namespace Combat
 {
+    
     public enum State
     {
         INIT, //setup gui
@@ -15,10 +17,14 @@ namespace Combat
     }
 
     public class CombatSystem : MonoBehaviour, IPublisher
-    {        
-        public List<GameObject> CombatParties;
+    {
+        public MessageType messageLayer = MessageType.COMBAT;
+        public Callback Party1;
+        public Callback Party2;
         private FiniteStateMachine<State> _fsm;
-        public List<string> trans;     
+        public List<string> trans;
+
+        public Callback OnStart;
 
         void Awake()
         {
@@ -38,14 +44,7 @@ namespace Combat
         void Start()
         {
             ChangeState(State.START);
-        }
-
-        public void Publish(string e)
-        {
-            string type = "combat";
-            string message = type + ":" + e;
-            EventSystem.Broadcast(message);
-        }
+        } 
 
         public void ChangeState(State s)
         {
@@ -54,32 +53,37 @@ namespace Combat
 
         public void InitToStart()
         {
-            Publish("init->start");
+            Publish(messageLayer,"init->start");
         }
 
         public void StartToTarget()
         { 
-            Publish("start->target");
+            Publish(messageLayer,"start->target");
         }
 
         public void TargetToResolve()
         {
-            Publish("target->resolve");
+            Publish(messageLayer, "target->resolve");
         }
 
         public void ResolveToEndTurn()
         {
-            Publish("resolve->endturn");
+            Publish(messageLayer, "resolve->endturn");
         }
 
         public void EndTurnToExit()
         {
-            Publish("endturn->exit");
+            Publish(messageLayer, "endturn->exit");
         }
 
         public void EndTurnToStart()
         {
-            Publish("endturn->start");
+            Publish(messageLayer, "endturn->start");
+        }
+
+        public void Publish(MessageType m, string e)
+        {
+            EventSystem.Broadcast(m, e);
         }
     }
 }

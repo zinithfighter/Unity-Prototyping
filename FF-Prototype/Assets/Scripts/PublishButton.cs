@@ -2,18 +2,22 @@
 using System.Collections;
 using System;
 
-public class PublishButton : MonoBehaviour, IPublisher
+namespace gui
 {
-    void Awake()
+    public class PublishButton : MonoBehaviour, IPublisher
     {
-        GetComponent<UnityEngine.UI.Button>().onClick.AddListener(PublishButtonClicked);
-    }
-    public void PublishButtonClicked()
-    {
-        Publish("gui:" + gameObject.name);
-    }
-    public void Publish(string e)
-    {
-        EventSystem.Broadcast(e);
+        MessageType messageLayer = MessageType.GUI;
+        void Awake()
+        {
+            GetComponent<UnityEngine.UI.Button>().onClick.AddListener(PublishButtonClicked);
+        }
+        public void PublishButtonClicked()
+        {
+            Publish(messageLayer, gameObject.name);
+        }
+        public void Publish(MessageType m, string e)
+        {
+            EventSystem.Broadcast(m, e);
+        }
     }
 }

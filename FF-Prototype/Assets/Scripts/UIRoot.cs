@@ -3,32 +3,33 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 
- 
-public class UIRoot : MonoBehaviour, ISubscriber
+ namespace Gui
 {
-    public GameObject _combatPanel;  
-    
-    void Awake()
+    public class UIRoot : MonoBehaviour, ISubscriber
     {
-        
-        Subscribe(MessageType.COMBAT, "init->start", EnableCombatPanel); 
-        Subscribe(MessageType.COMBAT, "start->target", DisableCombatPanel); 
-    }
+        public GameObject _combatPanel;
 
-    public void Subscribe(MessageType t, string e, Callback c)
-    {
-        EventSystem.Subscribe(t, e, c, this);
-    }
- 
-    void DisableCombatPanel()
-    {
-        _combatPanel.SetActive(false);
-    }
+        void Awake()
+        {
 
-    void EnableCombatPanel()
-    {
-        _combatPanel.SetActive(true);
-    } 
-  
-   
+            Subscribe(MessageType.COMBAT, "init->start", EnableCombatPanel);
+            Subscribe(MessageType.COMBAT, "start->target", DisableCombatPanel);
+        }
+
+        public void Subscribe(MessageType t, string e, Callback c)
+        {
+            EventSystem.Subscribe(t, e, c, this);
+        }
+
+        void DisableCombatPanel()
+        {
+            _combatPanel.SetActive(false);
+        }
+
+        void EnableCombatPanel()
+        {
+            _combatPanel.SetActive(true);
+        }
+
+    }
 }

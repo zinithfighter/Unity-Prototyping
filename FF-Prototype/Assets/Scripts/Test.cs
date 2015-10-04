@@ -24,9 +24,13 @@ public class Test : MonoBehaviour, IPublisher, ISubscriber
 
     void Update()
     {
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            Publish(MessageType.COMBAT, "TurnFinished");
+        }
         if(Input.GetKeyDown(KeyCode.A))
         {
-            Publish("init->start");            
+            Publish(MessageType.COMBAT, "init->start");            
         }
         if(Input.GetKeyDown(KeyCode.T))
         {
@@ -44,9 +48,9 @@ public class Test : MonoBehaviour, IPublisher, ISubscriber
         print("doit");
     }
 
-    public void Publish(string e)
+    public void Publish(MessageType m, string e)
     {
-        EventSystem.Broadcast(e);
+        EventSystem.Broadcast(m, e);
     }
 
     public void Subscribe(MessageType t, string e, Callback c)
