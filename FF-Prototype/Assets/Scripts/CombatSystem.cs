@@ -16,29 +16,26 @@ namespace Combat
         EXIT,
     }
 
-    public class CombatSystem : MonoBehaviour, IPublisher
+    public class CombatSystem : MonoBehaviour, IPublisher, ISubscriber
     {
         public MessageType messageLayer = MessageType.COMBAT;
-        public Callback Party1;
-        public Callback Party2;
-        private FiniteStateMachine<State> _fsm;
-        public List<string> trans;
-
-        public Callback OnStart;
+        
+        private FiniteStateMachine<State> _fsm;  
 
         void Awake()
         {
             _fsm = new FiniteStateMachine<State>();
             _fsm.AddTransition(State.INIT, State.START, InitToStart);
             _fsm.AddTransition(State.START, State.TARGET, StartToTarget);
+            _fsm.AddTransition(State.TARGET, State.START, TargetToStart);
             _fsm.AddTransition(State.TARGET, State.RESOLVE, TargetToResolve);
             _fsm.AddTransition(State.RESOLVE, State.ENDTURN, ResolveToEndTurn);
-            _fsm.AddTransition(State.ENDTURN, State.ENDTURN, EndTurnToExit);
+            _fsm.AddTransition(State.ENDTURN, State.EXIT, EndTurnToExit);
             _fsm.AddTransition(State.ENDTURN, State.START, EndTurnToStart);
 
             _fsm.Begin(State.INIT);
 
-            trans.AddRange(_fsm.TransitionTable);
+            Subscribe(MessageType.GUI, "attack", StartToTarget); 
         }
 
         void Start()
@@ -59,6 +56,11 @@ namespace Combat
         public void StartToTarget()
         { 
             Publish(messageLayer,"start->target");
+        }
+
+        public void TargetToStart()
+        {
+            Publish(messageLayer, "target->start");
         }
 
         public void TargetToResolve()
@@ -84,6 +86,11 @@ namespace Combat
         public void Publish(MessageType m, string e)
         {
             EventSystem.Broadcast(m, e);
+        }
+
+        public void Subscribe(MessageType t, string e, Callback c)
+        {
+           EventSystem.Subscribe(t, e, c, this);
         }
     }
 }

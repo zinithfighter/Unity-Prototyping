@@ -1,9 +1,19 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using System.Collections.Generic;
+
+/// <summary>
+/// if you want to use this a couple of things will need to be setup
+/// you will need a way to get all of your subscribers as a single string value
+/// and they must be seperated in the following format
+/// <object>:<type>:<message>
+/// </summary>
+
 
 class Subscriber : EditorWindow
 {
+    /// <summary>
+    /// draw a window 
+    /// </summary>
     [MenuItem("ChuTools/Subscribers")]
     public static void ShowWindow()
     {
@@ -19,7 +29,7 @@ class Subscriber : EditorWindow
         string[] types = new string[size];
         string[] messages = new string[size];
 
-        for (int i = 0; i < EventSystem.Subscribers.Count; i++)
+        for (int i = 0; i < EventSystem.Subscribers.Count; i++)//split the string into three substrings name:type:message
         {
             string info = EventSystem.Subscribers[i];
             string[] infoSplit = info.Split(':');
@@ -31,7 +41,7 @@ class Subscriber : EditorWindow
         EditorGUILayout.BeginHorizontal();
 
 
-        Setup(1, ref names, "Subscriber"); 
+        Setup(1, ref names, "Subscriber (Namespace.Class)"); 
         Setup(2, ref types, "Type"); 
         Setup(3, ref messages,"Message");
 

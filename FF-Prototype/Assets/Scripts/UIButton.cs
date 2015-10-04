@@ -10,14 +10,17 @@ public class UIButton : MonoBehaviour
     {
         if (Application.isPlaying == false)
             Rename();
-
     }
 
 #endif
 
-    void Rename()
+    void Start()
     {
+        Rename();
+    }
 
+    void Rename()
+    { 
         Text _text = GetComponentInChildren<Text>();
         if (_text.text != name)
         {

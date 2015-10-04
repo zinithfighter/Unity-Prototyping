@@ -12,6 +12,9 @@ public class CombatParty : MonoBehaviour
     private bool active;
     private int currentUnitIndex;
 
+    Callback onCombatStart;
+    Callback onCombatIdle;
+
     void Awake()
     {
         if(_partyMembers.Count == 0)
@@ -22,11 +25,8 @@ public class CombatParty : MonoBehaviour
                     _partyMembers.Add(t.gameObject);
             }
         }
-
-        active = false;
+       
         _currentUnit = _partyMembers[currentUnitIndex].GetComponent<CombatUnit>();
-        
-        
     }
 
     public void SetActive(bool s)
@@ -34,25 +34,11 @@ public class CombatParty : MonoBehaviour
         if (s) active = true;
         else active = false;
 
-    } 
-    
-    void Start()
-    {
+    }      
 
-    }
-
-    void Update()
-    {
-        if(active)
-        {
-            StartCombat();
-        }
-    }
-    
     void StartCombat()
     {
         _currentUnit.SetState(true);
-
     }
    
 }
