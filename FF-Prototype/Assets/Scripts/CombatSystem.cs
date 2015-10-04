@@ -25,64 +25,75 @@ namespace Combat
         void Awake()
         {
             _fsm = new FiniteStateMachine<State>();
-            _fsm.AddTransition(State.INIT, State.START, InitToStart);
-            _fsm.AddTransition(State.START, State.TARGET, StartToTarget);
-            _fsm.AddTransition(State.TARGET, State.START, TargetToStart);
-            _fsm.AddTransition(State.TARGET, State.RESOLVE, TargetToResolve);
-            _fsm.AddTransition(State.RESOLVE, State.ENDTURN, ResolveToEndTurn);
-            _fsm.AddTransition(State.ENDTURN, State.EXIT, EndTurnToExit);
-            _fsm.AddTransition(State.ENDTURN, State.START, EndTurnToStart);
+            _fsm.AddTransition(State.INIT, State.START, InitToStartHandler);
+            _fsm.AddTransition(State.START, State.TARGET, StartToTargetHandler);
+            _fsm.AddTransition(State.TARGET, State.START, TargetToStartHandler);
+            _fsm.AddTransition(State.TARGET, State.RESOLVE, TargetToResolveHandler);
+            _fsm.AddTransition(State.RESOLVE, State.ENDTURN, ResolveToEndTurnHandler);
+            _fsm.AddTransition(State.ENDTURN, State.EXIT, EndTurnToExitHandler);
+            _fsm.AddTransition(State.ENDTURN, State.START, EndTurnToStartHandler);
 
             _fsm.Begin(State.INIT);
 
-            Subscribe(MessageType.GUI, "attack", StartToTarget); 
+            Subscribe(MessageType.GUI, "attack", StartToTargetTrigger);
+            Subscribe(MessageType.GUI, "cancel", TargetToStartTrigger);
         }
 
         void Start()
         {
-            ChangeState(State.START);
+            _fsm.ChangeState(State.START);
         } 
-
-        public void ChangeState(State s)
-        {
-            _fsm.ChangeState(s);
-        }
-
-        public void InitToStart()
+        
+        #region Handlers
+        public void InitToStartHandler()
         {
             Publish(messageLayer,"init->start");
         }
 
-        public void StartToTarget()
+        public void StartToTargetHandler()
         { 
             Publish(messageLayer,"start->target");
+            
         }
-
-        public void TargetToStart()
+        
+        public void TargetToStartHandler()
         {
             Publish(messageLayer, "target->start");
         }
-
-        public void TargetToResolve()
+        
+        public void TargetToResolveHandler()
         {
             Publish(messageLayer, "target->resolve");
         }
 
-        public void ResolveToEndTurn()
+        public void ResolveToEndTurnHandler()
         {
             Publish(messageLayer, "resolve->endturn");
         }
 
-        public void EndTurnToExit()
+        public void EndTurnToExitHandler()
         {
             Publish(messageLayer, "endturn->exit");
         }
 
-        public void EndTurnToStart()
+        public void EndTurnToStartHandler()
         {
             Publish(messageLayer, "endturn->start");
         }
+        #endregion Handlers
 
+        #region Triggers
+        public void StartToTargetTrigger()
+        {
+            _fsm.ChangeState(State.TARGET);
+        }
+        public void TargetToStartTrigger()
+        {
+            _fsm.ChangeState(State.START);
+        }
+        #endregion Triggers
+
+        #region Interface
         public void Publish(MessageType m, string e)
         {
             EventSystem.Broadcast(m, e);
@@ -92,5 +103,6 @@ namespace Combat
         {
            EventSystem.Subscribe(t, e, c, this);
         }
+        #endregion Interface
     }
 }

@@ -2,43 +2,38 @@
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// keeps track of all units in this group and manages them
+/// we will funnel all unit actions through this object before a notification
+/// is registered. We do this because i don't know
+/// </summary>
 public class CombatParty : MonoBehaviour
 {
     [SerializeField]
-    private List<GameObject> _partyMembers;
+    private List<CombatUnit> _partyMembers;
     [SerializeField]
     private CombatUnit _currentUnit;
-    [SerializeField]
-    private bool active;
-    private int currentUnitIndex;
-
-    Callback onCombatStart;
-    Callback onCombatIdle;
+    private int _unitIndex;
 
     void Awake()
     {
-        if(_partyMembers.Count == 0)
-        {
-            foreach(Transform t in transform)
-            {
-                if(t.GetComponent<CombatUnit>())
-                    _partyMembers.Add(t.gameObject);
-            }
-        }
-       
-        _currentUnit = _partyMembers[currentUnitIndex].GetComponent<CombatUnit>();
+        _unitIndex = 0;
+        _partyMembers = ChuTools.PopulateFromChildren<CombatUnit>(this.transform);
+        _currentUnit = _partyMembers[_unitIndex];
     }
 
-    public void SetActive(bool s)
-    {
-        if (s) active = true;
-        else active = false;
 
-    }      
-
-    void StartCombat()
+    public void NextUnit()
     {
+        _currentUnit.SetState(false);
+        _unitIndex += 1;
+        if (_unitIndex >= _partyMembers.Count)
+            _unitIndex = 0;
+        _currentUnit = _partyMembers[_unitIndex];
         _currentUnit.SetState(true);
     }
+
+
+
    
 }

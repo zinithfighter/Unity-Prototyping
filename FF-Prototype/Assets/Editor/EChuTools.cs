@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
+using System.Collections.Generic;
 
 /// <summary>
 /// if you want to use this a couple of things will need to be setup
@@ -41,9 +42,9 @@ class Subscriber : EditorWindow
         EditorGUILayout.BeginHorizontal();
 
 
-        Setup(1, ref names, "Subscriber (Namespace.Class)"); 
-        Setup(2, ref types, "Type"); 
-        Setup(3, ref messages,"Message");
+        Setup(1, ref names, "Subscriber (Namespace.Class)");
+        Setup(2, ref types, "Type");
+        Setup(3, ref messages, "Message");
 
         EditorGUILayout.EndHorizontal();
 

@@ -32,10 +32,6 @@ public class Test : MonoBehaviour, IPublisher, ISubscriber
         {
             Publish(MessageType.COMBAT, "init->start");            
         }
-        if(Input.GetKeyDown(KeyCode.T))
-        {
-            combats.ChangeState(Combat.State.TARGET);    
-        }
 
         if (Input.GetKeyDown(KeyCode.S))
         {
