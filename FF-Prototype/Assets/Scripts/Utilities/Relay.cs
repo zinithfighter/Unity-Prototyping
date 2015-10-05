@@ -22,7 +22,11 @@ public class Relay : MonoBehaviour, ISubscriber
     {
         EventSystem.Subscribe(t, e, c, this);
     }
-
+    
+    public void Subscribe<T>(MessageType t, string e, Callback<T> c)
+    {
+        EventSystem.Subscribe<T>(t, e, c, this);
+    }
     public void DoSomething()
     {
 

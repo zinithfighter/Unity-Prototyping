@@ -18,13 +18,18 @@ namespace Gui
 
             //the generic template argument binds the signature of the delegate
             //allowing us to pass values to our delegate function we are subscribing to the event
-            EventSystem.Subscribe(MessageType.COMBAT, "start->target", OnTarget, this);
-            EventSystem.Subscribe<CombatUnit>(MessageType.COMBAT, "unit change", OnUnitChange, this);
+            Subscribe(MessageType.COMBAT, "start->target", OnTarget);
+            Subscribe<CombatUnit>(MessageType.COMBAT, "unit change", OnUnitChange);
         }
 
         public void Subscribe(MessageType t, string e, Callback c)
         {
             EventSystem.Subscribe(t, e, c, this);
+        }
+        
+        public void Subscribe<T>(MessageType t, string e, Callback<T> c)
+        {
+            EventSystem.Subscribe<T>(t, e, c, this);
         }
 
         void OnStart()

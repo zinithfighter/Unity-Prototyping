@@ -8,7 +8,7 @@ using System;
 /// we will funnel all unit actions through this object before a notification
 /// is registered. We do this because i don't know
 /// </summary>
-public class CombatParty : MonoBehaviour, IPublisher
+public class CombatParty : MonoBehaviour, IPublisher, ISubscriber
 {
     [SerializeField]
     private List<CombatUnit> _partyMembers;
@@ -17,37 +17,64 @@ public class CombatParty : MonoBehaviour, IPublisher
     [SerializeField]
     private int _unitIndex;
 
+    public bool active;
+
     void Awake()
     {
         _unitIndex = 0;
         _partyMembers = ChuTools.PopulateFromChildren<CombatUnit>(this.transform);
         _currentUnit = _partyMembers[_unitIndex];
+        Subscribe(MessageType.COMBAT, "endturn", NextUnit);
+        Subscribe(MessageType.COMBAT, "init->start", Start);
     }
 
+ 
     void Start()
     {
-        EventSystem.Broadcast(MessageType.COMBAT, "unit change", _currentUnit);
+        if (active)
+        {
+            _currentUnit.SetState(true);
+            Publish(MessageType.COMBAT, "unit change", _currentUnit);
+        }
     }
 
 
     public void NextUnit()
     {
-        _currentUnit.SetState(false);
+        if (active)
+        {
+            _currentUnit.SetState(false);
 
-        _unitIndex += 1;
+            _unitIndex += 1;
 
-        if (_unitIndex >= _partyMembers.Count)
-            _unitIndex = 0;
+            if (_unitIndex >= _partyMembers.Count)
+                _unitIndex = 0;
 
-        _currentUnit = _partyMembers[_unitIndex];
+            _currentUnit = _partyMembers[_unitIndex];
 
-        _currentUnit.SetState(true);
-        
-        EventSystem.Broadcast(MessageType.COMBAT, "unit change", _currentUnit);
+            _currentUnit.SetState(true);
+
+            Publish(MessageType.COMBAT, "unit change", _currentUnit);
+        }
     }
 
     public void Publish(MessageType m, string e)
     {
         EventSystem.Broadcast(m, e);
+    }
+
+    public void Publish<T>(MessageType m, string e, T args)
+    {
+        EventSystem.Broadcast<T>(m, e, args);
+    }
+
+    public void Subscribe(MessageType t, string e, Callback c)
+    {
+        EventSystem.Subscribe(t, e, c, this);
+    }
+
+    public void Subscribe<T>(MessageType t, string e, Callback<T> c)
+    {
+        EventSystem.Subscribe<T>(t, e, c, this);
     }
 }

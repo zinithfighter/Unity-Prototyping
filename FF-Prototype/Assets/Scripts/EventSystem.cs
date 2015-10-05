@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System;
 using System.Collections.Generic;
 
 
@@ -7,7 +7,7 @@ static public class EventSystem
 {
     static private List<object> _subscribers = new List<object>();
 
-    static private Dictionary<string, object> _eventTable = new Dictionary<string, object>();
+    static private Dictionary<string, Delegate> _events = new Dictionary<string, Delegate>();
 
     /// <summary>
     /// Notify all the subscribers that a message has occurred
@@ -17,14 +17,13 @@ static public class EventSystem
     {
         string message = format(m, e);
         Debug.Log("Event Broadcast: " + message);
-        object o;
-        if (_eventTable.TryGetValue(message, out o))
+        Delegate d;
+        if (_events.TryGetValue(message, out d))
         {
             //Debug.Log("execute " + message);
-            Subscriber s = o as Subscriber;
+            Callback s = d as Callback;
             if (s != null)
-                s.Invoke();
-
+                s();
         }
     }
 
@@ -32,13 +31,13 @@ static public class EventSystem
     {
         string message = format(m, e);
         Debug.Log("Event Broadcast: " + message);
-        object o;
-        if (_eventTable.TryGetValue(message, out o))
+        Delegate d;
+        if (_events.TryGetValue(message, out d))
         {
             //Debug.Log("execute " + message);
-            Subscriber<T> s = o as Subscriber<T>;
+            Callback<T> s = (Callback < T >)d;
             if (s != null)
-                s.Invoke(arg);
+                s(arg);
         }
     }
 
@@ -46,6 +45,64 @@ static public class EventSystem
     {
 
     }
+
+    /// <summary>
+    /// subscribe to a message
+    /// </summary>
+    /// <param name="t">the type of message</param>
+    /// <param name="e">the message to listen for</param>
+    /// <param name="sub">the object that implements the interface</param>
+    static public bool Subscribe(MessageType t, string e, Callback c, ISubscriber s)
+    {
+        string eventType = format(t, e);
+        Subscriber sub = new Subscriber(t, e, c, s);       
+
+        object obj = sub as object;
+        _subscribers.Add(obj);
+        
+        if(_events.ContainsKey(eventType))
+        {
+            _events[eventType] = (Callback)_events[eventType] + c;
+            
+            return true;
+        }
+
+        _events.Add(eventType, c);
+
+        return true;
+    }
+
+    /// <summary>
+    /// subscribe to a message
+    /// </summary>
+    /// <param name="t">the type of message</param>
+    /// <param name="e">the message to listen for</param>
+    /// <param name="sub">the object that implements the interface</param>
+    static public bool Subscribe<T>(MessageType t, string e, Callback<T> c, ISubscriber s)
+    {
+        string eventType = format(t, e);
+        Subscriber<T> sub = new Subscriber<T>(t, e, c, s);
+
+        object obj = sub as object;
+        _subscribers.Add(obj);
+       
+        if (_events.ContainsKey(eventType))
+        {
+            _events[eventType] = (Callback<T>)_events[eventType] + c;            
+            return true;
+        }
+
+        _events.Add(eventType, c);
+        
+
+        return true;
+    }
+
+    static public string format(MessageType t, string m)
+    {
+        return t.ToString().ToLower() + ":" + m.ToLower();
+    }
+
 
     static public List<string> Subscribers
     {
@@ -66,57 +123,6 @@ static public class EventSystem
         }
     }
 
-    /// <summary>
-    /// subscribe to a message
-    /// </summary>
-    /// <param name="t">the type of message</param>
-    /// <param name="e">the message to listen for</param>
-    /// <param name="sub">the object that implements the interface</param>
-    static public bool Subscribe(MessageType t, string e, Callback c, ISubscriber s)
-    {
-        Subscriber sub = new Subscriber(t, e, c, s);
-        foreach (object o in _subscribers)
-        {
-            Subscriber ss = o as Subscriber;
-            if (ss != null)
-            {
-                if (ss.SubscriberInfo == sub.SubscriberInfo)
-                    return false;
-            }
-        }
-
-        _eventTable.Add(format(t, e), sub);
-        _subscribers.Add(sub);
-
-        return true;
-    }
-
-    /// <summary>
-    /// subscribe to a message
-    /// </summary>
-    /// <param name="t">the type of message</param>
-    /// <param name="e">the message to listen for</param>
-    /// <param name="sub">the object that implements the interface</param>
-    static public bool Subscribe<T>(MessageType t, string e, Callback<T> c, ISubscriber s)
-    {
-        Subscriber<T> sub = new Subscriber<T>(t, e, c, s);
-        foreach (object o in _subscribers)
-        {
-            Subscriber ss = o as Subscriber;
-            if (ss.SubscriberInfo == sub.SubscriberInfo)
-                return false;
-        }
-
-        _eventTable.Add(format(t, e), sub);
-        _subscribers.Add(sub);
-
-        return true;
-    }
-
-    static public string format(MessageType t, string m)
-    {
-        return t.ToString().ToLower() + ":" + m.ToLower();
-    }
 
     private class Subscriber
     {
@@ -124,6 +130,7 @@ static public class EventSystem
         private string message;
         private Callback callback;
         private ISubscriber sub;
+
 
         public Subscriber(MessageType t, string m, Callback c, ISubscriber s)
         {
@@ -133,11 +140,13 @@ static public class EventSystem
             message = m;
         }
 
+        public Callback Method { get { return callback; } }
+
         public string Message { get { return message.ToLower(); } }
 
         public string Name { get { return sub.ToString(); } }
 
-        public string SubscriberInfo { get { return this.Name + ":" + format(type, message); } }
+        public string SubscriberInfo { get { return Name + ":" + format(type, message); } }
 
         public void Invoke() { callback(); }
     }

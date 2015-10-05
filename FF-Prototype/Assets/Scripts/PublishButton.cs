@@ -19,5 +19,13 @@ namespace gui
         {
             EventSystem.Broadcast(m, e);
         }
+
+
+        public void Publish<T>(MessageType m, string e, T args)
+        {
+            EventSystem.Broadcast<T>(m, e, args);
+        }
+
+        
     }
 }

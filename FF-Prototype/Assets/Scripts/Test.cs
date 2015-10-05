@@ -53,4 +53,15 @@ public class Test : MonoBehaviour, IPublisher, ISubscriber
     {
         EventSystem.Subscribe(t, e, c, this);
     }
+
+
+    public void Publish<T>(MessageType m, string e, T args)
+    {
+        EventSystem.Broadcast<T>(m, e, args);
+    }
+
+    public void Subscribe<T>(MessageType t, string e, Callback<T> c)
+    {
+        EventSystem.Subscribe<T>(t, e, c, this);
+    }
 }
