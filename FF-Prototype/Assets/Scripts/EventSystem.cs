@@ -5,7 +5,9 @@ using System.Collections.Generic;
 
 static public class EventSystem
 {
+    static private List<object> _subscribers = new List<object>();
 
+    static private Dictionary<string, object> _eventTable = new Dictionary<string, object>();
 
     /// <summary>
     /// Notify all the subscribers that a message has occurred
@@ -15,11 +17,28 @@ static public class EventSystem
     {
         string message = format(m, e);
         Debug.Log("Event Broadcast: " + message);
-        Subscriber s;
-        if (eventTable.TryGetValue(message, out s))
+        object o;
+        if (_eventTable.TryGetValue(message, out o))
         {
-            Debug.Log("execute " + message);
-            s.Invoke();
+            //Debug.Log("execute " + message);
+            Subscriber s = o as Subscriber;
+            if (s != null)
+                s.Invoke();
+
+        }
+    }
+
+    static public void Broadcast<T>(MessageType m, string e, T arg)
+    {
+        string message = format(m, e);
+        Debug.Log("Event Broadcast: " + message);
+        object o;
+        if (_eventTable.TryGetValue(message, out o))
+        {
+            //Debug.Log("execute " + message);
+            Subscriber<T> s = o as Subscriber<T>;
+            if (s != null)
+                s.Invoke(arg);
         }
     }
 
@@ -28,17 +47,19 @@ static public class EventSystem
 
     }
 
-    static private List<Subscriber> _subscribers = new List<Subscriber>();
-
-    static private Dictionary<string, Subscriber> eventTable = new Dictionary<string, Subscriber>();
     static public List<string> Subscribers
     {
         get
         {
             List<string> subsAsString = new List<string>();
 
-            foreach (Subscriber s in _subscribers)
-                subsAsString.Add(s.SubscriberInfo);
+            foreach (object o in _subscribers)
+            {
+                Subscriber s = o as Subscriber;
+
+                if (s != null)
+                    subsAsString.Add(s.SubscriberInfo);
+            }
 
             return subsAsString;
 
@@ -54,13 +75,39 @@ static public class EventSystem
     static public bool Subscribe(MessageType t, string e, Callback c, ISubscriber s)
     {
         Subscriber sub = new Subscriber(t, e, c, s);
-        foreach (Subscriber ss in _subscribers)
+        foreach (object o in _subscribers)
         {
+            Subscriber ss = o as Subscriber;
+            if (ss != null)
+            {
+                if (ss.SubscriberInfo == sub.SubscriberInfo)
+                    return false;
+            }
+        }
+
+        _eventTable.Add(format(t, e), sub);
+        _subscribers.Add(sub);
+
+        return true;
+    }
+
+    /// <summary>
+    /// subscribe to a message
+    /// </summary>
+    /// <param name="t">the type of message</param>
+    /// <param name="e">the message to listen for</param>
+    /// <param name="sub">the object that implements the interface</param>
+    static public bool Subscribe<T>(MessageType t, string e, Callback<T> c, ISubscriber s)
+    {
+        Subscriber<T> sub = new Subscriber<T>(t, e, c, s);
+        foreach (object o in _subscribers)
+        {
+            Subscriber ss = o as Subscriber;
             if (ss.SubscriberInfo == sub.SubscriberInfo)
                 return false;
         }
 
-        eventTable.Add(format(t, e), sub);
+        _eventTable.Add(format(t, e), sub);
         _subscribers.Add(sub);
 
         return true;
@@ -68,8 +115,9 @@ static public class EventSystem
 
     static public string format(MessageType t, string m)
     {
-        return t.ToString().ToLower() +":"+ m.ToLower();
+        return t.ToString().ToLower() + ":" + m.ToLower();
     }
+
     private class Subscriber
     {
         private MessageType type;
@@ -85,33 +133,36 @@ static public class EventSystem
             message = m;
         }
 
-        public string Message
+        public string Message { get { return message.ToLower(); } }
+
+        public string Name { get { return sub.ToString(); } }
+
+        public string SubscriberInfo { get { return this.Name + ":" + format(type, message); } }
+
+        public void Invoke() { callback(); }
+    }
+
+    private class Subscriber<T>
+    {
+        private MessageType type;
+        private string message;
+        private Callback<T> callback;
+        private ISubscriber sub;
+
+        public Subscriber(MessageType t, string m, Callback<T> c, ISubscriber s)
         {
-            get
-            {
-                return message.ToLower();
-            }
+            type = t;
+            sub = s;
+            callback = c;
+            message = m;
         }
 
-        public string Name
-        {
-            get
-            {
-                return sub.ToString();
-            }
-        }
-        public string SubscriberInfo
-        {
-            get
-            {
-                return this.Name + ":" + format(type, message);
-            }
-        }
+        public void Invoke(T arg) { callback(arg); }
 
-        public void Invoke()
-        {
-            callback();
-        }
+        public string Message { get { return message.ToLower(); } }
+        public string Name { get { return sub.ToString(); } }
+        public string SubscriberInfo { get { return this.Name + ":" + format(type, message); } }
+
 
     }
 

@@ -1,7 +1,6 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using UnityEngine.EventSystems;
  
-public interface ISubscriber
+public interface ISubscriber : IEventSystemHandler
 {   
-    void Subscribe(MessageType t, string e, Callback c); 
+    void Subscribe(MessageType t, string e, Callback c);  
 }

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Combat
 {
-    
+
     public enum State
     {
         INIT, //setup gui
@@ -19,14 +19,18 @@ namespace Combat
     public class CombatSystem : MonoBehaviour, IPublisher, ISubscriber
     {
         public MessageType messageLayer = MessageType.COMBAT;
-        
-        private FiniteStateMachine<State> _fsm;  
+
+        private FiniteStateMachine<State> _fsm;
+
+        [SerializeField]
+        private State _currentState;
 
         void Awake()
         {
             _fsm = new FiniteStateMachine<State>();
             _fsm.AddTransition(State.INIT, State.START, InitToStartHandler);
             _fsm.AddTransition(State.START, State.TARGET, StartToTargetHandler);
+            _fsm.AddTransition(State.START, State.ENDTURN, StartToEndTurnHandler);
             _fsm.AddTransition(State.TARGET, State.START, TargetToStartHandler);
             _fsm.AddTransition(State.TARGET, State.RESOLVE, TargetToResolveHandler);
             _fsm.AddTransition(State.RESOLVE, State.ENDTURN, ResolveToEndTurnHandler);
@@ -37,60 +41,34 @@ namespace Combat
 
             Subscribe(MessageType.GUI, "attack", StartToTargetTrigger);
             Subscribe(MessageType.GUI, "cancel", TargetToStartTrigger);
+            Subscribe(MessageType.GUI, "endturn", StartToEndTurnTrigger);
         }
 
         void Start()
         {
             _fsm.ChangeState(State.START);
-        } 
-        
+        }
+
+        void Update()
+        {
+            _currentState = _fsm.currentState;
+        }
+
         #region Handlers
-        public void InitToStartHandler()
-        {
-            Publish(messageLayer,"init->start");
-        }
-
-        public void StartToTargetHandler()
-        { 
-            Publish(messageLayer,"start->target");
-            
-        }
-        
-        public void TargetToStartHandler()
-        {
-            Publish(messageLayer, "target->start");
-        }
-        
-        public void TargetToResolveHandler()
-        {
-            Publish(messageLayer, "target->resolve");
-        }
-
-        public void ResolveToEndTurnHandler()
-        {
-            Publish(messageLayer, "resolve->endturn");
-        }
-
-        public void EndTurnToExitHandler()
-        {
-            Publish(messageLayer, "endturn->exit");
-        }
-
-        public void EndTurnToStartHandler()
-        {
-            Publish(messageLayer, "endturn->start");
-        }
+        public void InitToStartHandler() { Publish(messageLayer, "init->start"); }
+        public void StartToTargetHandler() { Publish(messageLayer, "start->target"); }
+        public void StartToEndTurnHandler() { Publish(messageLayer, "start->endturn"); }
+        public void TargetToStartHandler() { Publish(messageLayer, "target->start"); }
+        public void TargetToResolveHandler() { Publish(messageLayer, "target->resolve"); }
+        public void ResolveToEndTurnHandler() { Publish(messageLayer, "resolve->endturn"); }
+        public void EndTurnToExitHandler() { Publish(messageLayer, "endturn->exit"); }
+        public void EndTurnToStartHandler() { Publish(messageLayer, "endturn->start"); }
         #endregion Handlers
 
         #region Triggers
-        public void StartToTargetTrigger()
-        {
-            _fsm.ChangeState(State.TARGET);
-        }
-        public void TargetToStartTrigger()
-        {
-            _fsm.ChangeState(State.START);
-        }
+        public void StartToTargetTrigger() { _fsm.ChangeState(State.TARGET); }
+        public void TargetToStartTrigger() { _fsm.ChangeState(State.START); }
+        public void StartToEndTurnTrigger() { _fsm.ChangeState(State.ENDTURN); }
         #endregion Triggers
 
         #region Interface
@@ -101,7 +79,7 @@ namespace Combat
 
         public void Subscribe(MessageType t, string e, Callback c)
         {
-           EventSystem.Subscribe(t, e, c, this);
+            EventSystem.Subscribe(t, e, c, this);
         }
         #endregion Interface
     }

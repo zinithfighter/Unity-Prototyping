@@ -19,34 +19,34 @@ class Subscriber : EditorWindow
     public static void ShowWindow()
     {
         EditorWindow.GetWindow(typeof(Subscriber));
-    }
-
-
-
+    } 
+    
     void OnGUI()
     {
-        int size = EventSystem.Subscribers.Count;
-        string[] names = new string[size];
-        string[] types = new string[size];
-        string[] messages = new string[size];
+ 
+            int size = EventSystem.Subscribers.Count;
+            string[] names = new string[size];
+            string[] types = new string[size];
+            string[] messages = new string[size];
 
-        for (int i = 0; i < EventSystem.Subscribers.Count; i++)//split the string into three substrings name:type:message
-        {
-            string info = EventSystem.Subscribers[i];
-            string[] infoSplit = info.Split(':');
-            names[i] = infoSplit[0];
-            types[i] = infoSplit[1];
-            messages[i] = infoSplit[2];
-        }
+            for (int i = 0; i < EventSystem.Subscribers.Count; i++)//split the string into three substrings name:type:message
+            {
+                string info = EventSystem.Subscribers[i];
+                string[] infoSplit = info.Split(':');
+                names[i] = infoSplit[0];
+                types[i] = infoSplit[1];
+                messages[i] = infoSplit[2];
+            }
 
-        EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.BeginHorizontal();
 
 
-        Setup(1, ref names, "Subscriber (Namespace.Class)");
-        Setup(2, ref types, "Type");
-        Setup(3, ref messages, "Message");
+            Setup(1, ref names, "Subscriber (Namespace.Class)");
+            Setup(2, ref types, "Type");
+            Setup(3, ref messages, "Message");
 
-        EditorGUILayout.EndHorizontal();
+            EditorGUILayout.EndHorizontal();
+ 
 
     }
 

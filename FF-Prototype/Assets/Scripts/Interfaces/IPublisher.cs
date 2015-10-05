@@ -1,7 +1,6 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using UnityEngine.EventSystems;
 
-public interface IPublisher
+public interface IPublisher : IEventSystemHandler
 {
     void Publish(MessageType m,  string e);
 }

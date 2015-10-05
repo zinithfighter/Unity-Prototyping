@@ -1,19 +1,25 @@
-﻿using UnityEngine;
-using System.Collections;
-using System;
-using System.Collections.Generic;
+﻿using System;
+using UnityEngine;
 
- namespace Gui
+namespace Gui
 {
     public class UIRoot : MonoBehaviour, ISubscriber
     {
-        public GameObject _combatPanel;
+        [SerializeField]
+        private GameObject _combatPanel;
 
+        [SerializeField]
+        private GameObject _infoPanel;
+        
         void Awake()
-        {
+        {   
+            Subscribe(MessageType.COMBAT, "init->start", OnStart);
+           // Subscribe(MessageType.COMBAT, "start->target", OnTarget);
 
-            Subscribe(MessageType.COMBAT, "init->start", EnableCombatPanel);
-            Subscribe(MessageType.COMBAT, "start->target", DisableCombatPanel);
+            //the generic template argument binds the signature of the delegate
+            //allowing us to pass values to our delegate function we are subscribing to the event
+            EventSystem.Subscribe(MessageType.COMBAT, "start->target", OnTarget, this);
+            EventSystem.Subscribe<CombatUnit>(MessageType.COMBAT, "unit change", OnUnitChange, this);
         }
 
         public void Subscribe(MessageType t, string e, Callback c)
@@ -21,15 +27,28 @@ using System.Collections.Generic;
             EventSystem.Subscribe(t, e, c, this);
         }
 
-        void DisableCombatPanel()
+        void OnStart()
         {
-            _combatPanel.SetActive(false);
+            _combatPanel.SetActive(true);
+        }     
+
+        void OnTarget()
+        {
+            _combatPanel.SetActive(false);            
         }
 
-        void EnableCombatPanel()
+        void OnTargetSelected()
         {
             _combatPanel.SetActive(true);
         }
 
+        void OnUnitChange(CombatUnit arg)
+        {
+            _infoPanel.GetComponent<UnityEngine.UI.Text>().text = 
+                "Name: " + arg.name + 
+                "\nHP: "+ arg.health +
+                "\nAttack: "+ arg.attack +
+                "\nDefense: " + arg.defense;
+        }
     }
 }

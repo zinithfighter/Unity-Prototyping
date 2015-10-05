@@ -4,12 +4,16 @@ using System;
 
 public class CombatUnit : MonoBehaviour, IUnit
 {
+    [SerializeField]
     int _health;
+    [SerializeField]
     float _attack;
-    float _defense;
+    [SerializeField]
+    float _defense;    
     bool active;
+
     FiniteStateMachine<State> _fsm;
-    
+
     public enum State
     {
         init,
@@ -20,13 +24,13 @@ public class CombatUnit : MonoBehaviour, IUnit
     }
 
     public State currentState = State.init;
-   
+
     public void SetState(bool s)
-    {        
+    {
         active = s;
         if (active) _fsm.ChangeState(State.active);
         else _fsm.ChangeState(State.inactive);
-        
+
     }
 
     void Awake()
@@ -37,16 +41,16 @@ public class CombatUnit : MonoBehaviour, IUnit
         _fsm.AddTransition(State.inactive, State.active, InactiveActive);
         _fsm.AddTransition(State.inactive, State.exit, InactiveExit);
 
-        _health = health;
-        _attack = attack;
-        _defense = defense;
+        health = _health;
+        attack = _attack;
+        defense = _defense;
 
         _fsm.Begin(State.init);
 
         SetState(false);
-                
+
     }
-    
+
     void Update()
     {
         currentState = _fsm.currentState;
@@ -62,8 +66,8 @@ public class CombatUnit : MonoBehaviour, IUnit
     }
 
     private void InitInactive()
-    {        
-        
+    {
+
     }
 
     private void ActiveInactive()
@@ -84,42 +88,9 @@ public class CombatUnit : MonoBehaviour, IUnit
     }
 
 
-    public float attack
-    {
-        get
-        {
-            return _attack;
-        }
+    public float attack { get { return _attack; } set { _attack = value; } }
 
-        set
-        {
-            _attack = value;
-        }
-    }
+    public float defense { get { return _defense; } set { _defense = value; } }
 
-    public float defense
-    {
-        get
-        {
-            return _defense;
-        }
-
-        set
-        {
-            _defense = value;
-        }
-    }
-
-    public int health
-    {
-        get
-        {
-            return _health;
-        }
-
-        set
-        {
-            _health = value;
-        }
-    }
+    public int health { get { return _health; } set { _health = value; } }
 }

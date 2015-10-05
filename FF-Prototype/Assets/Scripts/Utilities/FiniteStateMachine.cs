@@ -42,7 +42,7 @@ public class FiniteStateMachine<T>
     }
     public bool ChangeState(T to)
     {
-        Debug.Log("ChangeState! " + currentState.ToString() +"->"+  to.ToString());
+        //Debug.Log("ChangeState! " + currentState.ToString() +"->"+  to.ToString());
         if (CheckTransition(currentState, to)) //if it's in the dictionary
         {
             string transitionName = currentState.ToString().ToLower() + "->" + to.ToString().ToLower();
