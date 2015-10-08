@@ -7,7 +7,7 @@ static public class EventSystem
 {
     static private List<object> _subscribers = new List<object>();
 
-    static private Dictionary<string, Delegate> _events = new Dictionary<string, Delegate>();
+    static private Dictionary<string, Delegate> _eventTable = new Dictionary<string, Delegate>();
 
     /// <summary>
     /// Notify all the subscribers that a message has occurred
@@ -18,7 +18,7 @@ static public class EventSystem
         string message = format(m, e);
         Debug.Log("Event Broadcast: " + message);
         Delegate d;
-        if (_events.TryGetValue(message, out d))
+        if (_eventTable.TryGetValue(message, out d))
         {
             //Debug.Log("execute " + message);
             Callback s = d as Callback;
@@ -32,7 +32,7 @@ static public class EventSystem
         string message = format(m, e);
         Debug.Log("Event Broadcast: " + message);
         Delegate d;
-        if (_events.TryGetValue(message, out d))
+        if (_eventTable.TryGetValue(message, out d))
         {
             //Debug.Log("execute " + message);
             Callback<T> s = (Callback < T >)d;
@@ -41,8 +41,26 @@ static public class EventSystem
         }
     }
 
-    static private void RemoveSubscriber(ISubscriber go)
+    static private void RemoveSubscriber(string m, Callback handler, ISubscriber go)
     {
+        if (_eventTable.ContainsKey(m))
+        {
+            _eventTable[m] = (Callback)_eventTable[m] - handler;
+        }
+        //List<string> messagesToRemove = new List<string>();
+
+        //foreach (KeyValuePair<string, Delegate> pair in _eventTable)
+        //{
+        //    bool wasFound = false;        
+
+        //    if (!wasFound)
+        //        messagesToRemove.Add(pair.Key);
+        //}
+
+        //foreach (string message in messagesToRemove)
+        //{
+        //    _eventTable.Remove(message);
+        //}
 
     }
 
@@ -60,14 +78,14 @@ static public class EventSystem
         object obj = sub as object;
         _subscribers.Add(obj);
         
-        if(_events.ContainsKey(eventType))
+        if(_eventTable.ContainsKey(eventType))
         {
-            _events[eventType] = (Callback)_events[eventType] + c;
+            _eventTable[eventType] = (Callback)_eventTable[eventType] + c;
             
             return true;
         }
 
-        _events.Add(eventType, c);
+        _eventTable.Add(eventType, c);
 
         return true;
     }
@@ -86,13 +104,13 @@ static public class EventSystem
         object obj = sub as object;
         _subscribers.Add(obj);
        
-        if (_events.ContainsKey(eventType))
+        if (_eventTable.ContainsKey(eventType))
         {
-            _events[eventType] = (Callback<T>)_events[eventType] + c;            
+            _eventTable[eventType] = (Callback<T>)_eventTable[eventType] + c;            
             return true;
         }
 
-        _events.Add(eventType, c);
+        _eventTable.Add(eventType, c);
         
 
         return true;

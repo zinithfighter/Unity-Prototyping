@@ -61,21 +61,9 @@ public class FiniteStateMachine<T>
             currentState = to; //set the new state
 
             return true;
-        }
-        else
-        {
-            foreach(T state in _states)
-            {
-                string transition = currentState.ToString().ToLower() + "->" + state.ToString().ToLower();
-                if (CheckTransition(currentState, state))
-                {
-                    _transitionHandlers[transition]();
-                    currentState = to;
-                    return true;
-                }
-            }
-        }
-
+        }  
+         
+        
         Debug.Log("INVALID TRANSITION! " + transitionName);
         return false;
     }

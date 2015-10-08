@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Combat
@@ -46,50 +47,80 @@ namespace Combat
 
             _fsm.Begin(State.INIT);
 
-            Subscribe(MessageType.GUI, "attack", TargetTrigger);
-            Subscribe(MessageType.GUI, "cancel", StartTrigger);
-            Subscribe(MessageType.GUI, "endturn", EndTurnTrigger);
+            Subscribe(MessageType.GUI, "attack", TargetTrigger); //attack is clicked transition to targeting
+            Subscribe(MessageType.GUI, "cancel", StartTrigger); //cancel is clicked transition to start
+            Subscribe(MessageType.GUI, "endturn", EndTurnTrigger); //endturn is clicked transition to start
+            Subscribe(MessageType.PARTY, "Finished", ExitTrigger); //rotate a new party
 
             _combatParties = ChuTools.PopulateFromChildren<CombatParty>(this.transform);
         }
 
-        void Start()
-        {
-            _fsm.ChangeState(State.START);
-        }
+        void Start() { _fsm.ChangeState(State.START); }
 
-        void Update()
+        void Update() { _currentState = _fsm.currentState; }
+
+        void SetParty(int partyIndex)
         {
-            _currentState = _fsm.currentState;
+            _currentParty = _combatParties[partyIndex];
+            _currentParty.SetState(true);
         }
 
         #region Handlers
         public void InitToStartHandler()
         {
             int partyIndex = Random.Range(1, _combatParties.Count);
-            _currentParty = _combatParties[partyIndex];
-            _currentParty.active = true;
-            Publish(messageLayer, "init->start");
+            SetParty(partyIndex); //assign the party 
+            Publish(messageLayer, "init->start"); //publish the message
         }
+
         public void StartToTargetHandler() { Publish(messageLayer, "start->target"); }
-        public void StartToEndTurnHandler() { Publish(messageLayer, "start->endturn"); }
+
+        public void StartToEndTurnHandler()
+        {
+            StartCoroutine(WaitAndTransition(State.START, 0.1f));
+        }
+
+        IEnumerator WaitAndTransition(State state, float duration)
+        {
+            float timer = 0.0f;
+
+            while (timer < duration)
+            {
+                timer += Time.deltaTime;
+                yield return null;
+            }
+            Debug.Log(_currentState.ToString() + " Complete. Go to " + state.ToString());
+
+            _fsm.ChangeState(state);
+
+            string transition = _currentState.ToString() + "->" + state.ToString();
+
+            Publish(messageLayer, transition);
+        }
 
         public void TargetToStartHandler() { Publish(messageLayer, "target->start"); }
-        public void TargetToResolveHandler() { Publish(messageLayer, "resolve"); }
+
+        public void TargetToResolveHandler() { Publish(messageLayer, "target->resolve"); }
 
         public void ResolveToEndTurnHandler() { Publish(messageLayer, "resolve->endturn"); }
 
-        public void EndTurnToExitHandler() { Publish(messageLayer, "endturn->exit"); }
+        public void EndTurnToExitHandler()
+        {
+            int partyIndex = Random.Range(1, _combatParties.Count);
+            SetParty(partyIndex); //assign the party 
+            
+            StartCoroutine(WaitAndTransition(State.EXIT, 0.5f));
+        }
 
-        public void EndTurnToStartHandler() { Publish(messageLayer, "endturn"); }
+        public void EndTurnToStartHandler() { Publish(messageLayer, "endturn->start"); }
         #endregion Handlers
 
         #region Triggers
 
         public void StartTrigger() { _fsm.ChangeState(State.START); }
         public void TargetTrigger() { _fsm.ChangeState(State.TARGET); }
-
         public void EndTurnTrigger() { _fsm.ChangeState(State.ENDTURN); }
+        public void ExitTrigger() { _fsm.ChangeState(State.EXIT); }
         #endregion Triggers
 
         #region Interface

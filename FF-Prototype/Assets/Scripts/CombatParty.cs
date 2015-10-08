@@ -19,28 +19,37 @@ public class CombatParty : MonoBehaviour, IPublisher, ISubscriber
 
     public bool active;
 
+    public bool id;
+
     void Awake()
     {
         _unitIndex = 0;
         _partyMembers = ChuTools.PopulateFromChildren<CombatUnit>(this.transform);
         _currentUnit = _partyMembers[_unitIndex];
-        Subscribe(MessageType.COMBAT, "endturn", NextUnit);
-        Subscribe(MessageType.COMBAT, "init->start", Start);
+        Subscribe(MessageType.COMBAT, "init->start", StartUp);
+        Subscribe(MessageType.COMBAT, "endturn->start", NextUnit);
+        Subscribe(MessageType.COMBAT, "endturn->exit", ShutDown);
     }
 
- 
-    void Start()
+    public void SetState(bool state)
     {
-        if (active)
-        {
-            _currentUnit.SetState(true);
-            Publish(MessageType.COMBAT, "unit change", _currentUnit);
-        }
+        active = state;        
+    } 
+
+    void StartUp()
+    {
+        NextUnit();
     }
 
-
-    public void NextUnit()
+    void ShutDown()
     {
+        _unitIndex = 0;
+        active = false;
+    }
+
+    void NextUnit()
+    {
+        bool rollOver = false;
         if (active)
         {
             _currentUnit.SetState(false);
@@ -48,7 +57,16 @@ public class CombatParty : MonoBehaviour, IPublisher, ISubscriber
             _unitIndex += 1;
 
             if (_unitIndex >= _partyMembers.Count)
-                _unitIndex = 0;
+            {
+                if (rollOver) _unitIndex = 0;
+                else
+                {
+                    ShutDown();
+                    Publish(MessageType.PARTY, "Finished");
+
+                    return;
+                }
+            }
 
             _currentUnit = _partyMembers[_unitIndex];
 
@@ -58,6 +76,7 @@ public class CombatParty : MonoBehaviour, IPublisher, ISubscriber
         }
     }
 
+    #region Interfaces
     public void Publish(MessageType m, string e)
     {
         EventSystem.Broadcast(m, e);
@@ -77,4 +96,5 @@ public class CombatParty : MonoBehaviour, IPublisher, ISubscriber
     {
         EventSystem.Subscribe<T>(t, e, c, this);
     }
+    #endregion Interfaces
 }
