@@ -17,10 +17,13 @@ public class CombatParty : MonoBehaviour, IPublisher, ISubscriber
     [SerializeField]
     private int _unitIndex;
 
-    public bool active;
+    [SerializeField]
+    private bool active;
 
-    public bool id;
+    public int turnsTaken;
 
+    private int _partySize;
+    public int PartySize { get { return _partyMembers.Count; } }
     void Awake()
     {
         _unitIndex = 0;
@@ -33,11 +36,12 @@ public class CombatParty : MonoBehaviour, IPublisher, ISubscriber
 
     public void SetState(bool state)
     {
-        active = state;        
-    } 
+        active = state;
+    }
 
     void StartUp()
     {
+        turnsTaken = 0;
         NextUnit();
     }
 
@@ -55,6 +59,7 @@ public class CombatParty : MonoBehaviour, IPublisher, ISubscriber
             _currentUnit.SetState(false);
 
             _unitIndex += 1;
+            turnsTaken += 1;
 
             if (_unitIndex >= _partyMembers.Count)
             {

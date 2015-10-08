@@ -77,7 +77,10 @@ namespace Combat
 
         public void StartToEndTurnHandler()
         {
-            StartCoroutine(WaitAndTransition(State.START, 0.1f));
+            if(_currentParty.turnsTaken >= _currentParty.PartySize)
+                StartCoroutine(WaitAndTransition(State.EXIT, 0.0f));
+            else
+                StartCoroutine(WaitAndTransition(State.START, 0.0f));
         }
 
         IEnumerator WaitAndTransition(State state, float duration)
@@ -109,7 +112,7 @@ namespace Combat
             int partyIndex = Random.Range(1, _combatParties.Count);
             SetParty(partyIndex); //assign the party 
             
-            StartCoroutine(WaitAndTransition(State.EXIT, 0.5f));
+            StartCoroutine(WaitAndTransition(State.EXIT, 0.0f));
         }
 
         public void EndTurnToStartHandler() { Publish(messageLayer, "endturn->start"); }
@@ -119,7 +122,11 @@ namespace Combat
 
         public void StartTrigger() { _fsm.ChangeState(State.START); }
         public void TargetTrigger() { _fsm.ChangeState(State.TARGET); }
-        public void EndTurnTrigger() { _fsm.ChangeState(State.ENDTURN); }
+        public void EndTurnTrigger()
+        {//endturn has been clicked where do we go from here?
+            //either start exit or start
+            _fsm.ChangeState(State.ENDTURN);
+        }
         public void ExitTrigger() { _fsm.ChangeState(State.EXIT); }
         #endregion Triggers
 
