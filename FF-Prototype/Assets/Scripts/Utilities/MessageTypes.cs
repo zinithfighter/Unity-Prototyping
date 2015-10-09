@@ -4,4 +4,5 @@
     GAME,
     COMBAT,
     PARTY,
+    UNIT,
 }

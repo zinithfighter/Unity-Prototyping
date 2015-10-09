@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Gui
+namespace gui
 {
     public class UIRoot : MonoBehaviour, ISubscriber
     {
@@ -10,16 +10,22 @@ namespace Gui
 
         [SerializeField]
         private GameObject _infoPanel;
+
+        [SerializeField]
+        private GameObject _confirmPanel;
         
         void Awake()
         {   
-            Subscribe(MessageType.COMBAT, "init->start", OnStart);
+            Subscribe(MessageType.COMBAT, "start", OnStart);
+            Subscribe(MessageType.COMBAT, "ability", OnAbility);
+            Subscribe(MessageType.COMBAT, "resolve", OnDefend);
            // Subscribe(MessageType.COMBAT, "start->target", OnTarget);
 
             //the generic template argument binds the signature of the delegate
             //allowing us to pass values to our delegate function we are subscribing to the event
-            Subscribe(MessageType.COMBAT, "start->target", OnTarget);
+            Subscribe(MessageType.COMBAT, "target", OnTarget);
             Subscribe<CombatUnit>(MessageType.COMBAT, "unit change", OnUnitChange);
+            Subscribe(MessageType.GUI, "confirm", OnConfirm);
         }
 
         public void Subscribe(MessageType t, string e, Callback c)
@@ -31,21 +37,32 @@ namespace Gui
         {
             EventSystem.Subscribe<T>(t, e, c, this);
         }
-
+        
+        void OnConfirm()
+        {
+            _confirmPanel.SetActive(false);
+        }
         void OnStart()
         {
-            _combatPanel.SetActive(true);
+            _combatPanel.SetActive(false);
+            _confirmPanel.SetActive(false);
         }     
+
+        void OnAbility()
+        {
+            _combatPanel.SetActive(true);
+        }
 
         void OnTarget()
         {
             _combatPanel.SetActive(false);            
         }
-
-        void OnTargetSelected()
+        
+        void OnDefend()
         {
-            _combatPanel.SetActive(true);
-        }
+            _combatPanel.SetActive(false);
+            _confirmPanel.SetActive(true);
+        } 
 
         void OnUnitChange(CombatUnit arg)
         {

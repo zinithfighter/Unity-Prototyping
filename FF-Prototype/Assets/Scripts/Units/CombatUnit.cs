@@ -9,84 +9,83 @@ public class CombatUnit : MonoBehaviour, IUnit
     [SerializeField]
     float _attack;
     [SerializeField]
-    float _defense;    
-    bool active;
+    float _defense;
+    [SerializeField]
+    bool _active;
 
-    FiniteStateMachine<State> _fsm;
+    private FiniteStateMachine<State> _fsm;
 
     public enum State
     {
-        init,
-        active,
-        inactive,
-        exit,
-
+        INIT,
+        INACTIVE,
+        ACTIVE,
+        EXIT,
     }
 
-    public State currentState = State.init;
-
-    public void SetState(bool s)
-    {
-        active = s;
-        if (active) _fsm.ChangeState(State.active);
-        else _fsm.ChangeState(State.inactive);
-
-    }
+    public State currentState;
 
     void Awake()
     {
         _fsm = new FiniteStateMachine<State>();
-        _fsm.AddTransition(State.init, State.inactive, InitInactive);
-        _fsm.AddTransition(State.active, State.inactive, ActiveInactive);
-        _fsm.AddTransition(State.inactive, State.active, InactiveActive);
-        _fsm.AddTransition(State.inactive, State.exit, InactiveExit);
+        _fsm.AddTransition(State.INIT, State.INACTIVE, EnterInactive);
+        _fsm.AddTransition(State.INACTIVE, State.ACTIVE, EnterActive);
+        _fsm.AddTransition(State.ACTIVE, State.INACTIVE, EnterInactive);
+        _fsm.AddTransition(State.INACTIVE, State.EXIT, EnterExit);
 
         health = _health;
         attack = _attack;
         defense = _defense;
-
-        _fsm.Begin(State.init);
-
         SetState(false);
-
     }
-
+ 
     void Update()
     {
         currentState = _fsm.currentState;
     }
+
+    public void SetState(bool state)
+    {
+        ///(input_parameters) => {statement;}
+        //Callback doit = (state) ? (Callback)StartUp : (Callback)ShutDown;
+        //doit();
+
+        if (state)
+            StartUp();
+        else
+            ShutDown();
+    }
+
     private void StartUp()
     {
-        _fsm.ChangeState(State.active);
+        _active = true;
+        _fsm.ChangeState(State.ACTIVE);
     }
 
     private void ShutDown()
     {
-        _fsm.ChangeState(State.inactive);
+        _active = false;
+        _fsm.ChangeState(State.INACTIVE);
     }
 
-    private void InitInactive()
-    {
-
-    }
-
-    private void ActiveInactive()
+    private void EnterInactive()
     {
         Animator anim = GetComponentInChildren<Animator>();
+        Debug.Log("set idle trigger inactive");
         anim.SetTrigger("noidle");
     }
 
-    private void InactiveActive()
+    private void EnterActive()
     {
         Animator anim = GetComponentInChildren<Animator>();
+        Debug.Log("set idle trigger active");
         anim.SetTrigger("idle");
     }
 
-    private void InactiveExit()
+    private void EnterExit()
     {
 
     }
-
 
     public float attack { get { return _attack; } set { _attack = value; } }
 

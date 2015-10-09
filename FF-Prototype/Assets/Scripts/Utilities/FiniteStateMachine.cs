@@ -16,11 +16,17 @@ public class FiniteStateMachine<T>
             _states.Add(state);
         }
 
+        currentState = _states[0];
     }
     
     public List<string> TransitionTable
     {
         get { return _validTransistions; }
+    }
+
+    public List<T> States
+    {
+        get { return _states; }
     }
     public T currentState
     {
@@ -57,13 +63,13 @@ public class FiniteStateMachine<T>
         string transitionName = currentState.ToString().ToLower() + "->" + to.ToString().ToLower();
         if (CheckTransition(currentState, to)) //if it's in the dictionary
         {
-            _transitionHandlers[transitionName]();
             currentState = to; //set the new state
+            _transitionHandlers[transitionName]();
+            
 
             return true;
-        }  
-         
-        
+        }   
+
         Debug.Log("INVALID TRANSITION! " + transitionName);
         return false;
     }

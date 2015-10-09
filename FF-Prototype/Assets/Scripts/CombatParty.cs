@@ -10,75 +10,92 @@ using System;
 /// </summary>
 public class CombatParty : MonoBehaviour, IPublisher, ISubscriber
 {
+    /// <summary>
+    /// the list of units participating in combat
+    /// </summary>
     [SerializeField]
     private List<CombatUnit> _partyMembers;
+
+    /// <summary>
+    /// the instance of the current unit taking turn
+    /// </summary>
     [SerializeField]
     private CombatUnit _currentUnit;
+    /// <summary>
+    /// current index of the unit taking turn
+    /// </summary>
     [SerializeField]
     private int _unitIndex;
 
     [SerializeField]
-    private bool active;
+    private bool _active;
 
+    /// <summary>
+    /// how many turns we have taken
+    /// </summary>
     public int turnsTaken;
 
-    private int _partySize;
-    public int PartySize { get { return _partyMembers.Count; } }
+    /// <summary>
+    /// number of members in the group
+    /// </summary>    
+    public int PartySize
+    {
+        get { return _partyMembers.Count; }
+    }
+
     void Awake()
     {
-        _unitIndex = 0;
+        _active = false;        
         _partyMembers = ChuTools.PopulateFromChildren<CombatUnit>(this.transform);
         _currentUnit = _partyMembers[_unitIndex];
-        Subscribe(MessageType.COMBAT, "init->start", StartUp);
-        Subscribe(MessageType.COMBAT, "endturn->start", NextUnit);
-        Subscribe(MessageType.COMBAT, "endturn->exit", ShutDown);
+        Subscribe(MessageType.COMBAT, "resolve", NextUnit);
     }
 
+    /// <summary>
+    /// Setting the state will cause this party to become active
+    /// </summary>
+    /// <param name="state"></param>
     public void SetState(bool state)
     {
-        active = state;
-    }
+        _active = state;
+        if (_active)
+        { 
+            NextUnit();
+        }
+        else if (!_active)
+        {
+            _unitIndex = -1;        
+            turnsTaken = 0;
+        }
+    } 
 
-    void StartUp()
-    {
-        turnsTaken = 0;
-        NextUnit();
-    }
-
-    void ShutDown()
-    {
-        _unitIndex = 0;
-        active = false;
-    }
-
+    /// <summary>
+    /// move to the next unit
+    /// </summary>
     void NextUnit()
     {
-        bool rollOver = false;
-        if (active)
+        _currentUnit.SetState(false);
+        _unitIndex += 1; //increment the unit index
+        turnsTaken += 1; //increment the turns taken
+
+        if (_unitIndex >= _partyMembers.Count)
         {
-            _currentUnit.SetState(false);
-
-            _unitIndex += 1;
-            turnsTaken += 1;
-
-            if (_unitIndex >= _partyMembers.Count)
-            {
-                if (rollOver) _unitIndex = 0;
-                else
-                {
-                    ShutDown();
-                    Publish(MessageType.PARTY, "Finished");
-
-                    return;
-                }
-            }
-
-            _currentUnit = _partyMembers[_unitIndex];
-
-            _currentUnit.SetState(true);
-
-            Publish(MessageType.COMBAT, "unit change", _currentUnit);
+            Publish(MessageType.PARTY, "finished");
+            
         }
+        else
+        {
+            _currentUnit = _partyMembers[_unitIndex];
+            _currentUnit.SetState(true);
+        }
+
+
+        
+
+        Publish(MessageType.COMBAT, "unit change", _currentUnit); //tell everyone a unit has shifted 
+
+        
+
     }
 
     #region Interfaces

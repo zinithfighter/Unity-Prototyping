@@ -16,7 +16,7 @@ static public class EventSystem
     static public void Broadcast(MessageType m, string e)
     {
         string message = format(m, e);
-        Debug.Log("Event Broadcast: " + message);
+        //Debug.Log("Event Broadcast: " + message);
         Delegate d;
         if (_eventTable.TryGetValue(message, out d))
         {
@@ -30,16 +30,18 @@ static public class EventSystem
     static public void Broadcast<T>(MessageType m, string e, T arg)
     {
         string message = format(m, e);
-        Debug.Log("Event Broadcast: " + message);
+       // Debug.Log("Event Broadcast: " + message);
         Delegate d;
         if (_eventTable.TryGetValue(message, out d))
         {
             //Debug.Log("execute " + message);
-            Callback<T> s = (Callback < T >)d;
+            Callback<T> s = d as Callback< T >;
             if (s != null)
                 s(arg);
         }
     }
+
+ 
 
     static private void RemoveSubscriber(string m, Callback handler, ISubscriber go)
     {
@@ -47,20 +49,6 @@ static public class EventSystem
         {
             _eventTable[m] = (Callback)_eventTable[m] - handler;
         }
-        //List<string> messagesToRemove = new List<string>();
-
-        //foreach (KeyValuePair<string, Delegate> pair in _eventTable)
-        //{
-        //    bool wasFound = false;        
-
-        //    if (!wasFound)
-        //        messagesToRemove.Add(pair.Key);
-        //}
-
-        //foreach (string message in messagesToRemove)
-        //{
-        //    _eventTable.Remove(message);
-        //}
 
     }
 
@@ -80,7 +68,8 @@ static public class EventSystem
         
         if(_eventTable.ContainsKey(eventType))
         {
-            _eventTable[eventType] = (Callback)_eventTable[eventType] + c;
+            _eventTable[eventType] = (Callback)_eventTable[eventType] + c; 
+            //if it has the key we append it
             
             return true;
         }
@@ -97,12 +86,15 @@ static public class EventSystem
     /// <param name="e">the message to listen for</param>
     /// <param name="sub">the object that implements the interface</param>
     static public bool Subscribe<T>(MessageType t, string e, Callback<T> c, ISubscriber s)
-    {
-        string eventType = format(t, e);
-        Subscriber<T> sub = new Subscriber<T>(t, e, c, s);
+    {   //subscribe<string>("combatstart", ShowCombatGUI, this);
+        /*
+        ShowCombatGUI(string partyinfo){
+        label.txt = partyinfo;
+        }*/
 
-        object obj = sub as object;
-        _subscribers.Add(obj);
+
+
+        string eventType = format(t, e);
        
         if (_eventTable.ContainsKey(eventType))
         {

@@ -7,7 +7,10 @@ public class Test : MonoBehaviour, IPublisher, ISubscriber
     public UnityEngine.UI.Text textField;
     public GameObject PartyTakingTurn;
     public Combat.CombatSystem combats;
-
+    void Awake()
+    {
+        print("doit in awake");
+    }
     void Start()
     {
         //textField.text = PartyTakingTurn.name;
@@ -24,20 +27,9 @@ public class Test : MonoBehaviour, IPublisher, ISubscriber
 
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Space))
-        {
-            Publish(MessageType.COMBAT, "TurnFinished");
-        }
-        if(Input.GetKeyDown(KeyCode.A))
-        {
-            Publish(MessageType.COMBAT, "init->start");            
-        }
-
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            Subscribe(MessageType.PARTY, "doit", doit);
-        }
+        doit();
     }
+
 
     public void doit()
     {
