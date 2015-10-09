@@ -39,9 +39,19 @@ namespace Combat
         #region UnityEvents
         void Awake()
         {
-            SetupFSM();
-            _combatParties = ChuTools.PopulateFromChildren<CombatParty>(transform);
+            _fsm = new FiniteStateMachine<State>();
 
+            _fsm.AddTransition(State.INIT, State.START, EnterStartHandler);
+            _fsm.AddTransition(State.START, State.ABILITY, EnterAbilityHandler);
+            _fsm.AddTransition(State.ABILITY, State.TARGET, EnterTargetHandler);
+            _fsm.AddTransition(State.ABILITY, State.RESOLVE, EnterResolveHandler);
+            _fsm.AddTransition(State.TARGET, State.ABILITY, EnterAbilityHandler);
+            _fsm.AddTransition(State.TARGET, State.RESOLVE, EnterResolveHandler);
+            _fsm.AddTransition(State.RESOLVE, State.ABILITY, EnterAbilityHandler);
+            _fsm.AddTransition(State.RESOLVE, State.EXIT, null);
+            _states = new List<State>(_fsm.States);
+
+            _combatParties = ChuTools.PopulateFromChildren<CombatParty>(transform);
 
             Subscribe(MessageType.GUI, "attack", AbilityToTargetTrigger); //attack is clicked transition to targeting
             Subscribe(MessageType.GUI, "defend", AbilityToResolveTrigger); //endturn is clicked transition to start
@@ -49,9 +59,10 @@ namespace Combat
             Subscribe(MessageType.GUI, "confirm", ResolveToAbilityTrigger);
             Subscribe(MessageType.GUI, "endturn", AbilityToResolveTrigger);
             Subscribe(MessageType.PARTY, "finished", ResolveToStartTrigger); //rotate a new party 
-        }
+            Subscribe(MessageType.GUI, "begin", StartToAbilityTrigger);
 
-        
+
+        }
 
         void Start()
         {
@@ -66,61 +77,40 @@ namespace Combat
 
         #endregion UnityEvents
 
-        void SetupFSM()
-        {
-            _fsm = new FiniteStateMachine<State>();
-
-            _fsm.AddTransition(State.INIT, State.START, EnterStartHandler);
-
-            _fsm.AddTransition(State.START, State.ABILITY, EnterAbilityHandler);
-
-            _fsm.AddTransition(State.ABILITY, State.TARGET, EnterTargetHandler);
-            _fsm.AddTransition(State.ABILITY, State.RESOLVE, EnterResolveHandler);
-
-            _fsm.AddTransition(State.TARGET, State.ABILITY, EnterAbilityHandler);
-            _fsm.AddTransition(State.TARGET, State.RESOLVE, EnterResolveHandler);
-
-            _fsm.AddTransition(State.RESOLVE, State.ABILITY, EnterAbilityHandler);
-            _fsm.AddTransition(State.RESOLVE, State.EXIT, EnterExitHandler);
-
-            _states = new List<State>(_fsm.States);
-
-        }
+ 
         #region Handlers
 
         public void EnterStartHandler()
         {
             _currentParty = _combatParties[_partyIndex];
-            _currentParty.SetState(true);
-            Publish(messageLayer, "start");
-            StartToAbilityTrigger();
+            _currentParty.StartParty();
+            Publish(messageLayer, "start"); 
         }
 
         public void EnterAbilityHandler()
         {
             Publish(messageLayer, "ability"); //combat party is listening for this
         }
-        public void EnterTargetHandler() { }
 
         public void EnterResolveHandler()
         {
             if (_partyIndex >= _combatParties.Count)
                 _partyIndex = 0;
             else
-                _partyIndex += 1;// Random.Range(1, _combatParties.Count);
+            {
+                _partyIndex += 1;
+                ResolveToStartTrigger();
+            }
 
+            _currentParty.Next();
             Publish(messageLayer, "resolve");
         }
 
-        public void EnterExitHandler()
-        {
-            
-
-
-        }
+        public void EnterTargetHandler() { }
 
         #endregion Handlers
 
+ 
         #region Triggers
         public void InitToStartTrigger() { _fsm.ChangeState(State.START); }
         //from start        

@@ -13,7 +13,11 @@ namespace gui
 
         [SerializeField]
         private GameObject _confirmPanel;
-        
+
+
+        [SerializeField]
+        private GameObject _beginPanel;
+
         void Awake()
         {   
             Subscribe(MessageType.COMBAT, "start", OnStart);
@@ -27,6 +31,13 @@ namespace gui
             Subscribe<CombatUnit>(MessageType.COMBAT, "unit change", OnUnitChange);
             Subscribe(MessageType.GUI, "confirm", OnConfirm);
         }
+
+        void Start()
+        {
+            _beginPanel.SetActive(false);
+
+        } 
+            
 
         public void Subscribe(MessageType t, string e, Callback c)
         {
@@ -44,12 +55,14 @@ namespace gui
         }
         void OnStart()
         {
+            _beginPanel.SetActive(true);
             _combatPanel.SetActive(false);
             _confirmPanel.SetActive(false);
         }     
 
         void OnAbility()
         {
+            _beginPanel.SetActive(false);
             _combatPanel.SetActive(true);
         }
 

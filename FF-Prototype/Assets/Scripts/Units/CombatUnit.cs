@@ -2,7 +2,7 @@
 using System.Collections;
 using System;
 
-public class CombatUnit : MonoBehaviour, IUnit
+public class CombatUnit : MonoBehaviour, IUnit, IPublisher
 {
     [SerializeField]
     int _health;
@@ -25,13 +25,14 @@ public class CombatUnit : MonoBehaviour, IUnit
 
     public State currentState;
 
+    
     void Awake()
     {
         _fsm = new FiniteStateMachine<State>();
-        _fsm.AddTransition(State.INIT, State.INACTIVE, EnterInactive);
-        _fsm.AddTransition(State.INACTIVE, State.ACTIVE, EnterActive);
-        _fsm.AddTransition(State.ACTIVE, State.INACTIVE, EnterInactive);
-        _fsm.AddTransition(State.INACTIVE, State.EXIT, EnterExit);
+        _fsm.AddTransition(State.INIT, State.INACTIVE, EnterInactiveHandler);
+        _fsm.AddTransition(State.INACTIVE, State.ACTIVE, EnterActiveHandler);
+        _fsm.AddTransition(State.ACTIVE, State.INACTIVE, EnterInactiveHandler);
+        _fsm.AddTransition(State.INACTIVE, State.EXIT, null);
 
         health = _health;
         attack = _attack;
@@ -41,52 +42,46 @@ public class CombatUnit : MonoBehaviour, IUnit
  
     void Update()
     {
-        currentState = _fsm.currentState;
-        if (currentState == State.INACTIVE)
-            SetState(false);
+        currentState = _fsm.currentState; 
     }
 
     public void SetState(bool state)
-    {
-        ///(input_parameters) => {statement;}
-        //Callback doit = (state) ? (Callback)StartUp : (Callback)ShutDown;
-        //doit();
-
+    { 
         if (state)
-            StartUp();
+        {
+            _fsm.ChangeState(State.ACTIVE);
+        }
         else
-            ShutDown();
-    }
+        {
+            _fsm.ChangeState(State.INACTIVE);
+        }
+    } 
 
-    private void StartUp()
-    {
-        _active = true;
-        _fsm.ChangeState(State.ACTIVE);
-    }
-
-    private void ShutDown()
+    private void EnterInactiveHandler()
     {
         _active = false;
-        _fsm.ChangeState(State.INACTIVE);
-    }
-
-    private void EnterInactive()
-    {
         Animator anim = GetComponentInChildren<Animator>();
         Debug.Log("set idle trigger inactive");
         anim.SetTrigger("noidle");
     }
 
-    private void EnterActive()
+    private void EnterActiveHandler()
     {
+        _active = true;
+        Publish(MessageType.COMBAT, "unit change", this); //tell everyone a unit has shifted 
         Animator anim = GetComponentInChildren<Animator>();
         Debug.Log("set idle trigger active");
         anim.SetTrigger("idle");
     }
 
-    private void EnterExit()
+    public void Publish(MessageType m, string e)
     {
+        EventSystem.Broadcast(m, e);
+    }
 
+    public void Publish<T>(MessageType m, string e, T args)
+    {
+        EventSystem.Broadcast<T>(m, e, args);
     }
 
     public float attack { get { return _attack; } set { _attack = value; } }
