@@ -42,6 +42,8 @@ public class CombatUnit : MonoBehaviour, IUnit
     void Update()
     {
         currentState = _fsm.currentState;
+        if (currentState == State.INACTIVE)
+            SetState(false);
     }
 
     public void SetState(bool state)

@@ -69,32 +69,35 @@ public class CombatParty : MonoBehaviour, IPublisher, ISubscriber
         }
     } 
 
+
     /// <summary>
     /// move to the next unit
     /// </summary>
     void NextUnit()
     {
-        _currentUnit.SetState(false);
-        _unitIndex += 1; //increment the unit index
-        turnsTaken += 1; //increment the turns taken
-
-        if (_unitIndex >= _partyMembers.Count)
+        if (_active)
         {
-            Publish(MessageType.PARTY, "finished");
-            
-        }
-        else
-        {
-            _currentUnit = _partyMembers[_unitIndex];
-            _currentUnit.SetState(true);
-        }
+            _currentUnit.SetState(false);
+            _unitIndex += 1; //increment the unit index
+            turnsTaken += 1; //increment the turns taken
 
+            if (_unitIndex >= _partyMembers.Count)
+            {
+                Publish(MessageType.PARTY, "finished");
 
+            }
+            else
+            {
+                _currentUnit = _partyMembers[_unitIndex];
+                _currentUnit.SetState(true);
+            }
+
+      
         
 
         Publish(MessageType.COMBAT, "unit change", _currentUnit); //tell everyone a unit has shifted 
 
-        
+         } 
 
     }
 

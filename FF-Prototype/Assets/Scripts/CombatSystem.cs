@@ -47,7 +47,8 @@ namespace Combat
             Subscribe(MessageType.GUI, "defend", AbilityToResolveTrigger); //endturn is clicked transition to start
             Subscribe(MessageType.GUI, "cancel", TargetToAbilityTrigger); //cancel is clicked transition to start  
             Subscribe(MessageType.GUI, "confirm", ResolveToAbilityTrigger);
-            Subscribe(MessageType.PARTY, "finished", ResolveToExitTrigger); //rotate a new party 
+            Subscribe(MessageType.GUI, "endturn", AbilityToResolveTrigger);
+            Subscribe(MessageType.PARTY, "finished", ResolveToStartTrigger); //rotate a new party 
         }
 
         
@@ -103,15 +104,17 @@ namespace Combat
 
         public void EnterResolveHandler()
         {
+            if (_partyIndex >= _combatParties.Count)
+                _partyIndex = 0;
+            else
+                _partyIndex += 1;// Random.Range(1, _combatParties.Count);
+
             Publish(messageLayer, "resolve");
         }
 
         public void EnterExitHandler()
         {
-            if (_partyIndex >= _combatParties.Count)
-                _partyIndex = 0;
-            else
-                _partyIndex += 1;// Random.Range(1, _combatParties.Count);
+            
 
 
         }

@@ -54,10 +54,7 @@ public class FiniteStateMachine<T>
         return false;
     }
 
-    public void Begin(T to)
-    {
-        currentState = to;
-    }
+ 
     public bool ChangeState(T to)
     {
         string transitionName = currentState.ToString().ToLower() + "->" + to.ToString().ToLower();
@@ -70,7 +67,7 @@ public class FiniteStateMachine<T>
             return true;
         }   
 
-        Debug.Log("INVALID TRANSITION! " + transitionName);
+        //Debug.Log("INVALID TRANSITION! " + transitionName);
         return false;
     }
 }
