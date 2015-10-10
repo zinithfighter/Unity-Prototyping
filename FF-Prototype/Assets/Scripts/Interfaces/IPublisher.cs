@@ -2,6 +2,6 @@
 
 public interface IPublisher : IEventSystemHandler
 {
-    void Publish(MessageType m,  string e);
-    void Publish<T>(MessageType m, string e, T args);
+    void Publish(MessageLayer m,  string e);
+    void Publish<T>(MessageLayer m, string e, T args);
 }

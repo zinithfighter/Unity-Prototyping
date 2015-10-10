@@ -6,7 +6,7 @@ namespace gui
 {
     public class PublishButton : MonoBehaviour, IPublisher
     {
-        MessageType messageLayer = MessageType.GUI;
+        MessageLayer messageLayer = MessageLayer.GUI;
         void Awake()
         {
             GetComponent<UnityEngine.UI.Button>().onClick.AddListener(PublishButtonClicked);
@@ -15,13 +15,13 @@ namespace gui
         {
             Publish(messageLayer, gameObject.name);
         }
-        public void Publish(MessageType m, string e)
+        public void Publish(MessageLayer m, string e)
         {
             EventSystem.Broadcast(m, e);
         }
 
 
-        public void Publish<T>(MessageType m, string e, T args)
+        public void Publish<T>(MessageLayer m, string e, T args)
         {
             EventSystem.Broadcast<T>(m, e, args);
         }

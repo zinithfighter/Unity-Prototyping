@@ -47,12 +47,13 @@ public class FiniteStateMachine<T>
     {
         string transitionName = currentState.ToString().ToLower() + "->" + to.ToString().ToLower();
         if (_transitionHandlers.ContainsKey(transitionName))
-        { 
+        {
             currentState = to; //set the new state
             //all delegates are called when the machine
             //enters a *NEW* state
             Handler handler = (Handler)_transitionHandlers[transitionName];
             handler();
+            
 
 
             return true;

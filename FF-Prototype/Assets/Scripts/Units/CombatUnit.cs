@@ -68,18 +68,18 @@ public class CombatUnit : MonoBehaviour, IUnit, IPublisher
     private void EnterActiveHandler()
     {
         _active = true;
-        Publish(MessageType.COMBAT, "unit change", this); //tell everyone a unit has shifted 
+        Publish(MessageLayer.COMBAT, "unit change", this); //tell everyone a unit has shifted 
         Animator anim = GetComponentInChildren<Animator>();
         Debug.Log("set idle trigger active");
         anim.SetTrigger("idle");
     }
 
-    public void Publish(MessageType m, string e)
+    public void Publish(MessageLayer m, string e)
     {
         EventSystem.Broadcast(m, e);
     }
 
-    public void Publish<T>(MessageType m, string e, T args)
+    public void Publish<T>(MessageLayer m, string e, T args)
     {
         EventSystem.Broadcast<T>(m, e, args);
     }

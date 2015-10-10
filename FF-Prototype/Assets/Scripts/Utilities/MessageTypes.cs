@@ -1,4 +1,4 @@
-﻿public enum MessageType
+﻿public enum MessageLayer
 {
     GUI,
     GAME,

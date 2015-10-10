@@ -5,7 +5,7 @@ using System;
 public class Relay : MonoBehaviour, ISubscriber
 {
  
-    public MessageType _messageType;
+    public MessageLayer _messageType;
     public string message;
     public void Start()
     {
@@ -18,12 +18,12 @@ public class Relay : MonoBehaviour, ISubscriber
     }
 
  
-    public void Subscribe(MessageType t, string e, Callback c)
+    public void Subscribe(MessageLayer t, string e, Callback c)
     {
         EventSystem.Subscribe(t, e, c, this);
     }
     
-    public void Subscribe<T>(MessageType t, string e, Callback<T> c)
+    public void Subscribe<T>(MessageLayer t, string e, Callback<T> c)
     {
         EventSystem.Subscribe<T>(t, e, c, this);
     }
