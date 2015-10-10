@@ -61,16 +61,16 @@ public class CombatUnit : MonoBehaviour, IUnit, IPublisher
     {
         _active = false;
         Animator anim = GetComponentInChildren<Animator>();
-        Debug.Log("set idle trigger inactive");
+        //Debug.Log("set idle trigger inactive");
         anim.SetTrigger("noidle");
     }
 
     private void EnterActiveHandler()
     {
         _active = true;
-        Publish(MessageLayer.COMBAT, "unit change", this); //tell everyone a unit has shifted 
+        Publish(MessageLayer.UNIT, "unit change", this); //tell everyone a unit has changed 
         Animator anim = GetComponentInChildren<Animator>();
-        Debug.Log("set idle trigger active");
+        //Debug.Log("set idle trigger active");
         anim.SetTrigger("idle");
     }
 

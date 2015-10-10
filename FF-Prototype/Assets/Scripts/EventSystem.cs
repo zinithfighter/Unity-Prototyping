@@ -13,12 +13,12 @@ static public class EventSystem
     /// Notify all the subscribers that a message has occurred
     /// </summary>
     /// <param name="message"></param>
-    static public void Broadcast(MessageLayer m, string e)
+    static public void Broadcast(MessageLayer t, string e)
     {
-        string message = format(m, e);
+        string eventType = format(t, e).Replace(" ", string.Empty);
         //Debug.Log("Event Broadcast: " + message);
         Delegate d;
-        if (_eventTable.TryGetValue(message, out d))
+        if (_eventTable.TryGetValue(eventType, out d))
         {
             //Debug.Log("execute " + message);
             Callback s = d as Callback;
@@ -27,12 +27,12 @@ static public class EventSystem
         }
     }
 
-    static public void Broadcast<T>(MessageLayer m, string e, T arg)
+    static public void Broadcast<T>(MessageLayer t, string e, T arg)
     {
-        string message = format(m, e);
-        // Debug.Log("Event Broadcast: " + message);
+        string eventType = format(t, e).Replace(" ", string.Empty);
+       // Debug.Log("Event Broadcast: " + eventType);
         Delegate d;
-        if (_eventTable.TryGetValue(message, out d))
+        if (_eventTable.TryGetValue(eventType, out d))
         {
             //Debug.Log("execute " + message);
             Callback<T> s = d as Callback<T>;
@@ -50,7 +50,7 @@ static public class EventSystem
         if (_eventTable.TryGetValue(message, out d))
         {
             //Debug.Log("execute " + message);
-            Callback<T> s = d as Callback<T>;
+            Callback<T,V> s = d as Callback<T,V>;
             if (s != null)
                 s(arg1, arg2);
 

@@ -23,34 +23,32 @@ namespace Combat
         void Awake()
         {
             _fsm = new FiniteStateMachine<State>();
-
-            _fsm.AddTransition(State.INIT, State.START, EnterStartHandler);
-            _fsm.AddTransition(State.START, State.ABILITY, EnterAbilityHandler);
-            _fsm.AddTransition(State.ABILITY, State.TARGET, EnterTargetHandler);
-            _fsm.AddTransition(State.ABILITY, State.RESOLVE, EnterResolveHandler);
-            _fsm.AddTransition(State.TARGET, State.ABILITY, EnterAbilityHandler);
-            _fsm.AddTransition(State.TARGET, State.RESOLVE, EnterResolveHandler);
-            _fsm.AddTransition(State.RESOLVE, State.ABILITY, EnterAbilityHandler);
-            _fsm.AddTransition(State.RESOLVE, State.EXIT, null);
             _states = new List<State>(_fsm.States);
 
+            _fsm.AddTransition(State.INIT, State.START, EnterStart, ExitState);
+            _fsm.AddTransition(State.START, State.ABILITY, EnterAbility, ExitState);
 
-            Subscribe(MessageLayer.GUI, "begin", StartToAbilityTrigger);
-            Subscribe(MessageLayer.GUI, "attack", AbilityToTargetTrigger); //attack is clicked transition to targeting
-            Subscribe(MessageLayer.GUI, "defend", AbilityToResolveTrigger); //endturn is clicked transition to start
-            Subscribe(MessageLayer.GUI, "cancel", TargetToAbilityTrigger); //cancel is clicked transition to start  
-            Subscribe(MessageLayer.GUI, "confirm", ResolveToAbilityTrigger);
-            Subscribe(MessageLayer.GUI, "endturn", AbilityToResolveTrigger);
+            _fsm.AddTransition(State.ABILITY, State.TARGET, EnterTarget, ExitState);
+            _fsm.AddTransition(State.ABILITY, State.RESOLVE, EnterResolve, ExitState);
 
+            _fsm.AddTransition(State.TARGET, State.ABILITY, EnterAbility, ExitState);
+            _fsm.AddTransition(State.TARGET, State.RESOLVE, EnterResolve, ExitState);
 
-            Subscribe(MessageLayer.PARTY, "finished", ResolveToStartTrigger); //rotate a new party 
+            _fsm.AddTransition(State.RESOLVE, State.START, EnterStart, ExitState);
+            _fsm.AddTransition(State.RESOLVE, State.ABILITY, EnterAbility, ExitState);
+            _fsm.AddTransition(State.RESOLVE, State.EXIT, null, null);
+
+            Subscribe(MessageLayer.GUI, "begin", AbilityTrigger);
+            Subscribe(MessageLayer.GUI, "cancel", OnCancel); //cancel is clicked transition to start  
+            Subscribe(MessageLayer.GUI, "endturn", ResolveTrigger);
+            Subscribe(MessageLayer.PARTY, "finished", StartTrigger); //rotate a new party 
 
             _partyIndex = 0;
             _combatParties = ChuTools.PopulateFromChildren<CombatParty>(transform);
 
         }
 
-        void Start() { InitToStartTrigger(); }
+        void Start() { StartTrigger(); }
 
 
 
@@ -59,47 +57,80 @@ namespace Combat
         #endregion UnityEvents
 
 
-        #region Handlers
 
-        public void EnterStartHandler()
+        #region s
+
+        void ExitState()
         {
-            _currentParty = _combatParties[_partyIndex];
+            Debug.Log("Exiting " + CurrentState.ToString());
+ 
         }
 
-        public void EnterAbilityHandler()
+        void EnterStart()
         {
+            Debug.Log("Entering " + CurrentState.ToString());
+ 
+            CurrentParty = _combatParties[_partyIndex];
+        }
+
+        void EnterAbility()
+        {
+            Debug.Log("Entering " + CurrentState.ToString());
             if (_currentParty == null)
                 throw new System.NullReferenceException("Entering ability state but the current unit has not been assigned");
-            if( _currentParty.CurrentUnit == null)
+            if (_currentParty.CurrentUnit == null)
                 throw new System.NullReferenceException("Entering ability state but the current unit has not been assigned");
-
         }
 
-        public void EnterResolveHandler()//call resolve either from ability or target
+        public void EnterResolve()
         {
-
+            if (CurrentParty.turnsTaken > CurrentParty.partySize)
+            {
+                Debug.Log("NEW PARTY TURN");
+                _partyIndex += 1;
+            }
         }
 
-        public void EnterTargetHandler() { }
+        void OnConfirm()
+        {
+            if (CurrentParty.turnsTaken <= CurrentParty.partySize)
+                _fsm.ChangeState(State.ABILITY);
+        }
 
-        #endregion Handlers
+        void OnCancel()
+        {
+            _fsm.ReverseState();
+        }
+
+
+
+
+        public void EnterTarget() { }
+
+        #endregion s
 
 
         #region Triggers
-        public void InitToStartTrigger() { _fsm.ChangeState(State.START); Publish(messageLayer, "StateChange", CurrentState); }
+        public void StartTrigger() { _fsm.ChangeState(State.START); Publish(messageLayer, "StateChange", CurrentState); }
         //from start        
-        public void StartToAbilityTrigger() { _fsm.ChangeState(State.ABILITY); Publish(messageLayer, "StateChange", CurrentState); }
+        public void AbilityTrigger() { _fsm.ChangeState(State.ABILITY); Publish(messageLayer, "StateChange", CurrentState); }
         //from ability
-        public void AbilityToTargetTrigger() { _fsm.ChangeState(State.TARGET); Publish(messageLayer, "StateChange", CurrentState); }
-        public void AbilityToResolveTrigger() { _fsm.ChangeState(State.RESOLVE); Publish(messageLayer, "StateChange", CurrentState); }
+        public void TargetTrigger() { _fsm.ChangeState(State.TARGET); Publish(messageLayer, "StateChange", CurrentState); }
+        public void ResolveTrigger() { _fsm.ChangeState(State.RESOLVE); Publish(messageLayer, "StateChange", CurrentState); }
+        void RestartTrigger()
+        {
+            _fsm.ChangeState(State.START);
+        }
+
         //from target
-        public void TargetToAbilityTrigger() { _fsm.ChangeState(State.ABILITY); Publish(messageLayer, "StateChange", CurrentState); }
-        public void TargetToResolveTrigger() { _fsm.ChangeState(State.RESOLVE); Publish(messageLayer, "StateChange", CurrentState); }
+
+
         //from resolve
-        public void ResolveToStartTrigger() { _fsm.ChangeState(State.START); Publish(messageLayer, "StateChange", CurrentState); }
-        public void ResolveToAbilityTrigger() { _fsm.ChangeState(State.ABILITY); Publish(messageLayer, "StateChange", CurrentState); }
-        public void ResolveToExitTrigger() { _fsm.ChangeState(State.EXIT); Publish(messageLayer, "StateChange", CurrentState); }
+
+
         #endregion Triggers
+
+
 
         #region Interface
         public void Publish(MessageLayer m, string e)
@@ -122,6 +153,10 @@ namespace Combat
             EventSystem.Subscribe<T>(t, e, c, this);
         }
         #endregion Interface
+
+
+
+        #region variables
         public State CurrentState
         {
             get { return _fsm.currentState; }
@@ -136,7 +171,21 @@ namespace Combat
         private List<CombatParty> _combatParties;
 
         [SerializeField]
-        private CombatParty _currentParty;
+        static private CombatParty _currentParty;
+
+
+        static public CombatParty CurrentParty
+        {
+            get
+            {
+                return _currentParty;
+            }
+            private set
+            {
+                _currentParty = value;
+            }
+
+        }
 
         [SerializeField]
         int _partyIndex;
@@ -146,6 +195,7 @@ namespace Combat
 
         [SerializeField]
         private List<State> _states;
+        #endregion variables
     }
 
 

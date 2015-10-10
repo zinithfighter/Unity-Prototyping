@@ -26,6 +26,7 @@ namespace gui
             //allowing us to pass values to our delegate function we are subscribing to the event
             Subscribe(MessageLayer.COMBAT, "target", OnTarget);            
             Subscribe(MessageLayer.GUI, "confirm", OnConfirm);
+            Subscribe(MessageLayer.GUI, "cancel", OnCancel);
         }
 
         /// <summary>
@@ -34,7 +35,7 @@ namespace gui
         /// <param name="state"></param>
         void OnCombatStateChange(Combat.State state)
         {
-            Debug.Log("combat state change " + state.ToString());
+           // Debug.Log("combat state change " + state.ToString());
             switch (state)
             {
                 case Combat.State.INIT:
@@ -60,6 +61,11 @@ namespace gui
         }
 
         void OnConfirm()
+        {
+            _confirmPanel.SetActive(false);
+        }
+
+        void OnCancel()
         {
             _confirmPanel.SetActive(false);
         }
