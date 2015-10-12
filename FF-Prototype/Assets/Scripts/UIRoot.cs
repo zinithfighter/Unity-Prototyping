@@ -1,8 +1,14 @@
 ﻿using System;
 using UnityEngine;
+using Combat;
 
 namespace gui
 {
+    public enum UIEvents
+    {
+        HOVER,
+        CLICK,
+    }
     public class UIRoot : MonoBehaviour, ISubscriber
     {
         [SerializeField]
@@ -20,7 +26,7 @@ namespace gui
 
         void Awake()
         {   
-            Subscribe<Combat.State>(MessageLayer.COMBAT, "StateChange", OnCombatStateChange);
+            Subscribe<string>(MessageLayer.COMBAT, "StateChange", OnCombatStateChange);
             Subscribe<CombatUnit>(MessageLayer.UNIT, "UnitChange", OnUnitChange);
             //the generic template argument binds the signature of the delegate
             //allowing us to pass values to our delegate function we are subscribing to the event
@@ -33,29 +39,29 @@ namespace gui
         /// event listener for combat
         /// </summary>
         /// <param name="state"></param>
-        void OnCombatStateChange(Combat.State state)
+        void OnCombatStateChange(string state)
         {
-           // Debug.Log("combat state change " + state.ToString());
+            Debug.Log("combat state change " + state);
             switch (state)
             {
-                case Combat.State.INIT:
+                case "init":
                     break;//setup gui
-                case Combat.State.START:
+                case "start":
                     _beginPanel.SetActive(true);
                     _combatPanel.SetActive(false);
                     _confirmPanel.SetActive(false);
                     break;
-                case Combat.State.ABILITY:
+                case "ability":
                     _beginPanel.SetActive(false);
                     _combatPanel.SetActive(true);
                     break;
-                case Combat.State.TARGET:
+                case "target":
                     break;
-                case Combat.State.RESOLVE:
+                case "resolve":
                     _combatPanel.SetActive(false);
                     _confirmPanel.SetActive(true);
                     break;
-                case Combat.State.EXIT:
+                case "exit":
                     break;
             }
         }

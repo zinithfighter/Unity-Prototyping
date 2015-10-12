@@ -36,6 +36,7 @@ public class Test : MonoBehaviour, IPublisher, ISubscriber
         print("doit");
     }
 
+    #region interfaces
     public void Publish(MessageLayer m, string e)
     {
         EventSystem.Broadcast(m, e);
@@ -55,5 +56,15 @@ public class Test : MonoBehaviour, IPublisher, ISubscriber
     public void Subscribe<T>(MessageLayer t, string e, Callback<T> c)
     {
         EventSystem.Subscribe<T>(t, e, c, this);
+    }
+    #endregion interfaces
+
+    public delegate bool StateTrigger();
+
+    StateTrigger IdleTriggers;
+
+    IEnumerator CheckDistance()
+    {
+        yield return null;
     }
 }

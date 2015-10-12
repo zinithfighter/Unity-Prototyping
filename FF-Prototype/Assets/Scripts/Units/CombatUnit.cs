@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System;
-
+using FiniteStateMachine;
 public class CombatUnit : MonoBehaviour, IUnit, IPublisher
 {
     [SerializeField]
@@ -29,33 +27,17 @@ public class CombatUnit : MonoBehaviour, IUnit, IPublisher
     void Awake()
     {
         _fsm = new FiniteStateMachine<State>();
-        _fsm.AddTransition(State.INIT, State.INACTIVE, EnterInactiveHandler);
-        _fsm.AddTransition(State.INACTIVE, State.ACTIVE, EnterActiveHandler);
-        _fsm.AddTransition(State.ACTIVE, State.INACTIVE, EnterInactiveHandler);
-        _fsm.AddTransition(State.INACTIVE, State.EXIT, null);
+
 
         health = _health;
         attack = _attack;
         defense = _defense;
-        SetState(false);
     }
  
     void Update()
     {
-        currentState = _fsm.currentState; 
+         
     }
-
-    public void SetState(bool state)
-    { 
-        if (state)
-        {
-            _fsm.ChangeState(State.ACTIVE);
-        }
-        else
-        {
-            _fsm.ChangeState(State.INACTIVE);
-        }
-    } 
 
     private void EnterInactiveHandler()
     {

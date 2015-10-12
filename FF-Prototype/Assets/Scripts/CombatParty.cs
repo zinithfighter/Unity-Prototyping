@@ -9,31 +9,16 @@ using Combat;
 /// </summary>
 public class CombatParty : MonoBehaviour, IPublisher, ISubscriber
 {
+
     void Awake()
     {
-        _partyMembers = ChuTools.PopulateFromChildren<CombatUnit>(transform);
-        _active = false;
-        startUpFlag = true;
-        Subscribe<State>(MessageLayer.COMBAT, "StateChange", Turn);
-
+        _partyMembers = ChuTools.PopulateFromChildren<CombatUnit>(transform); 
     }
 
     bool startUpFlag;
-    void Turn(State state)
+    public void Turn(State state)
     {
-        if (CombatSystem.CurrentParty == this)
-        {
-            _active = true;
-            switch (state)
-            {
-                case State.START:
-                    _currentUnit = _partyMembers[_unitIndex];
-                    break;
-                case State.ABILITY:     
-                    NextUnit(_unitIndex, ref startUpFlag);
-                    break;
-            }
-        }
+ 
     }
 
     /// <summary>
@@ -41,26 +26,28 @@ public class CombatParty : MonoBehaviour, IPublisher, ISubscriber
     /// </summary>
     private void NextUnit(int currentUnit, ref bool startup)
     {
+        
         if (startup)
         {
             startup = false;
-            _currentUnit.SetState(true);
+            //_currentUnit.SetState(true);
             return;
         }
         _unitIndex += 1; //increment the unit index
         turnsTaken += 1; //increment the turns taken   
         if (_unitIndex >= _partyMembers.Count)
-        {   
-            _active = false;
-            _currentUnit.SetState(false);
-            _currentUnit = null;
+        {            
             Publish(MessageLayer.PARTY, "finished");
+            _active = false;
+            //_currentUnit.SetState(false);
+            _currentUnit = null;
+            
             return;
         }
-        _currentUnit.SetState(false);
+ 
           
         _currentUnit = _partyMembers[_unitIndex];
-        _currentUnit.SetState(true);
+ 
     }
 
     #region Interfaces

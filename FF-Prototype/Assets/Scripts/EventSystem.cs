@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 
 
-static public class EventSystem
+static public class EventSystem 
 {
     static private Dictionary<string, Delegate> _eventTable = new Dictionary<string, Delegate>();
 
@@ -58,7 +58,7 @@ static public class EventSystem
     }
 
     /// <summary>
-    /// subscribe to a message
+    /// subscribe to a message without providing arguments for the delegate
     /// </summary>
     /// <param name="t">the type of message</param>
     /// <param name="e">the message to listen for</param>

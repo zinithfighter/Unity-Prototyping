@@ -5,4 +5,5 @@
     COMBAT,
     PARTY,
     UNIT,
+    INPUT,
 }

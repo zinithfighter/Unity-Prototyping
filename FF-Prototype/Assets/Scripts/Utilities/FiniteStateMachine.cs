@@ -1,116 +1,179 @@
 ﻿using System;
 using System.Collections.Generic;
-
-public class FiniteStateMachine<T>
+using System.Linq;
+/// <summary>
+/// States need to be well defined by their name as well as their valid inputs
+/// </summary>
+namespace FiniteStateMachine
 {
-
-    class TransitionHandler
+    public class State
     {
-        public Handler enter;
-        public Handler exit;
-        public TransitionHandler(Handler pre, Handler post)
+        public Delegate handler;
+        public string id;
+        public Enum name;
+
+
+        public State(Enum stateName, Delegate stateHandler)
         {
-            enter = pre;
-            exit = post;
+            name = stateName;
+            handler = stateHandler;
+            id = stateName.ToString();
+        }
+
+        public bool Handler()
+        {
+            Handler h;
+            if (handler != null)
+            {
+                h = handler as Handler;
+                h();
+                return true;
+            }
+            return false;
+
+        }
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public class Transition
+    {
+        int id;
+        public string input
+        {
+            get;
+            private set;
+        }
+        public State destination
+        {
+            get;
+            private set;
+        }
+        public Transition(string token, State state)
+        {
+            input = token;
+            destination = state;
+            id = GetHashCode();
         }
     }
 
-    private List<T> _states = new List<T>();
-    private List<string> _validTransistions = new List<string>();
-    private Dictionary<string, TransitionHandler> _transitions = new Dictionary<string, TransitionHandler>();
-
-
-    public FiniteStateMachine()
+    /// <summary>
+    /// finite state machine with 
+    /// </summary>
+    /// <typeparam name="T">
+    /// expecting an enum but can take in any kind of type</typeparam>
+    public class FiniteStateMachine<T>
     {
-        Type enumType = typeof(T);
-        var states = (T[])Enum.GetValues(enumType);
-        foreach (var state in states)
+        List<State> states; 
+        Dictionary<string, List<Transition>> table;
+        public FiniteStateMachine()
         {
-            _states.Add(state);
+            states = new List<State>(); 
+            table = new Dictionary<string, List<Transition>>();
+            Type stateType = typeof(T);
+            //if enum
+            var values = (T[])Enum.GetValues(stateType);
+            if (states == null)
+                states = new List<State>();
+            foreach (var v in values)
+            {
+                Enum enumType = v as Enum;
+                State state = new State(enumType, null);
+                states.Add(state);
+                table.Add(state.id, new List<Transition>());
+            }
+
+            currentState = states[0];
         }
 
-        currentState = _states[0];
-        previousState = _states[0];
-    }
 
-    public List<string> TransitionTable
-    {
-        get { return _validTransistions; }
-    }
 
-    public List<T> States
-    {
-        get { return _states; }
-    }
-    public T currentState
-    {
-        get;
-        private set;
-    }
-
-    public T previousState
-    { 
-        get;
-        private set;
-    }
-
-    public void AddTransition(T from, T to, Handler enter)
-    {
-        string transitionName = from.ToString().ToLower() + "->" + to.ToString().ToLower();
-        _validTransistions.Add(transitionName);
-        TransitionHandler t = new TransitionHandler(enter, null);
-        _transitions.Add(transitionName, t);
-    }
-
-    public void AddTransition(T from, T to, Handler enter, Handler exit)
-    {
-        string transitionName = from.ToString().ToLower() + "->" + to.ToString().ToLower();
-        _validTransistions.Add(transitionName);
-        TransitionHandler t = new TransitionHandler(enter, exit);
-        _transitions.Add(transitionName, t);
-
-    }
-
-    public bool ChangeState(T to)
-    {
-        string transitionName = currentState.ToString().ToLower() + "->" + to.ToString().ToLower();
-        if (_transitions.ContainsKey(transitionName))
+        /// <summary>
+        /// give input to the machine. if the machine returns true for the given state then transition
+        /// </summary>
+        /// <typeparam name="V">Can be any kind of input that is associated with the current state
+        /// for example string or integer values </typeparam>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public State Feed<V>(V token)
         {
-            if (_transitions[transitionName].exit != null)
-                _transitions[transitionName].exit();
+            foreach (Transition t in table[currentState.id])
+            {
+                if (t.input == token.ToString())
+                {                    
+                    currentState = t.destination;
+                    currentState.Handler();            
+                }
+            }
 
-            previousState = currentState;
-            currentState = to; //set the new state  
+            return currentState;
+        }
 
-            if (_transitions[transitionName].enter != null)
-                _transitions[transitionName].enter();
-
-              
-
+        /// <summary>
+        /// Set a states behaviour
+        /// </summary>
+        /// <param name="stateA">
+        /// state to set behaviour for</param>
+        /// <param name="handler">
+        /// what will execute when this becomes the current state</param>
+        /// <returns></returns>
+        public bool State(T stateA, Handler handler)
+        {
+            Enum state = stateA as Enum;
+            State newState = states.Find(x => x.id == stateA.ToString());
+            newState.handler = handler;
+            
             
             return true;
         }
 
-        //Debug.Log("INVALID TRANSITION! " + transitionName);
-        return false;
-    }
+ 
+        /// <summary>
+        /// Create transition between two states
+        /// </summary>
+        /// <typeparam name="V"></typeparam>
+        /// <param name="stateA"></param>
+        /// <param name="stateB"></param>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public bool Transition<V>(T stateA, T stateB, V input)
+        {
+            State destination = states.Find(state => state.id == stateB.ToString());            
+            if (table.ContainsKey(stateA.ToString()))
+            {
+                Transition transition = new Transition(input.ToString(), destination);
+                table[stateA.ToString()].Add(transition);
+            }
+            else
+            {
+                throw (new NotImplementedException("state does not exist"));
 
-    public bool ReverseState()
-    {
-        string transitionName = previousState.ToString().ToLower() + "->" + currentState.ToString().ToLower();
-        if (_transitions.ContainsKey(transitionName))
-        { 
-            if (_transitions[transitionName].enter != null)
-                _transitions[transitionName].enter();
-            currentState = previousState; //set the new state        
-            previousState = currentState;
+            }
 
-            if (_transitions[transitionName].exit != null)
-                _transitions[transitionName].exit();
             return true;
         }
+ 
 
-        //Debug.Log("INVALID TRANSITION! " + transitionName);
-        return false;
+        /// <summary>
+        /// return current state of the fsm
+        /// </summary>
+        public Enum CurrentState
+        {
+            get
+            {
+                return currentState.name as Enum;
+            }
+        }
+
+        /// <summary>
+        /// return the current state of the fsm
+        /// </summary>
+        private State currentState
+        {
+            get;
+            set;
+        }
+
+
     }
 }
