@@ -1,6 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System;
 
 namespace gui
 {
@@ -13,7 +11,12 @@ namespace gui
         }
         public void PublishButtonClicked()
         {
-            Publish(messageLayer, "button->click", gameObject.name.ToLower());
+            Publish(messageLayer, "buttonclick", gameObject.name.ToLower());
+        }
+
+        public void PublishButtonHover()
+        {
+            Publish(messageLayer, "buttonhover", gameObject.name.ToLower());
         }
         public void Publish(MessageLayer m, string e)
         {

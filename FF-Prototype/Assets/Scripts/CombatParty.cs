@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using Combat;
+using FiniteStateMachine;
 
 /// <summary>
 /// keeps track of all units in this group and manages them
@@ -9,45 +9,87 @@ using Combat;
 /// </summary>
 public class CombatParty : MonoBehaviour, IPublisher, ISubscriber
 {
+    enum State
+    {
+        INIT,
+        START,
+        ACTIVE,        
+        RESOLVE,
+        EXIT,
+    }
 
+    FiniteStateMachine<State> fsm;
+    void StateChange()
+    {
+        string currentState = fsm.CurrentState.ToString();
+        Publish(MessageLayer.PARTY, currentState);
+    }
+    void ResolveHandler()
+    {
+        StateChange();
+        if (_unitIndex >= _partyMembers.Count)        
+           fsm.Feed("partydone");        
+        else
+            fsm.Feed("next");
+    }
+
+    void ActiveHandler()
+    {
+        StateChange();
+        if (_unitIndex >= _partyMembers.Count)
+            _currentUnit = _partyMembers[0];
+        else
+        {
+            _unitIndex += 1; //increment the unit index
+            turnsTaken += 1; //increment the turns taken 
+            _currentUnit = _partyMembers[_unitIndex];
+        }
+    }
+
+    void StartHandler()
+    {
+        StateChange();
+        _unitIndex = 0;
+    }
+
+    void ExitHandler()
+    {
+        StateChange();
+        _unitIndex = 0;
+        //destroy this party
+    }
     void Awake()
     {
-        _partyMembers = ChuTools.PopulateFromChildren<CombatUnit>(transform); 
-    }
+        fsm = new FiniteStateMachine<State>();
+        fsm.State(State.INIT, StateChange);
+        fsm.State(State.RESOLVE, ResolveHandler);
+        fsm.State(State.START, StartHandler);
+        fsm.State(State.ACTIVE, StateChange);
+        fsm.State(State.EXIT, StateChange);
 
-    bool startUpFlag;
-    public void Turn(State state)
-    {
- 
-    }
+        fsm.Transition(State.INIT, State.START, "*");
+        fsm.Transition(State.START, State.ACTIVE, "start");
+        fsm.Transition(State.ACTIVE, State.RESOLVE, "resolve");
+        fsm.Transition(State.RESOLVE, State.ACTIVE, "next");
 
-    /// <summary>
-    /// move to the next unit
-    /// </summary>
-    private void NextUnit(int currentUnit, ref bool startup)
-    {
+        fsm.Transition(State.RESOLVE, State.EXIT, "dead");        
+        fsm.Transition(State.RESOLVE, State.START, "partydone");
+
+        Subscribe<string>(MessageLayer.COMBAT, "start", UpdateFSM);
+
+        _partyMembers = ChuTools.PopulateFromChildren<CombatUnit>(transform);
         
-        if (startup)
-        {
-            startup = false;
-            //_currentUnit.SetState(true);
-            return;
-        }
-        _unitIndex += 1; //increment the unit index
-        turnsTaken += 1; //increment the turns taken   
-        if (_unitIndex >= _partyMembers.Count)
-        {            
-            Publish(MessageLayer.PARTY, "finished");
-            _active = false;
-            //_currentUnit.SetState(false);
-            _currentUnit = null;
-            
-            return;
-        }
+    }
  
-          
-        _currentUnit = _partyMembers[_unitIndex];
- 
+    void Start()
+    {
+        UpdateFSM("*");
+    }
+    
+    void UpdateFSM(string input)
+    {
+        Debug.Log("feed party fsm with " + input);
+        fsm.Feed(input);
     }
 
     #region Interfaces

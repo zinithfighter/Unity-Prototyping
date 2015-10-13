@@ -12,6 +12,8 @@ public class InputSystem : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
             EventSystem.Broadcast(MessageLayer.INPUT, "keydown", "escape");
-            
-	}
+        if (Input.GetKeyDown(KeyCode.Space))
+            EventSystem.Broadcast(MessageLayer.INPUT, "keydown", "space");
+
+    }
 }

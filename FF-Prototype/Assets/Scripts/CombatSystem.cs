@@ -6,14 +6,12 @@ using System;
 
 namespace Combat
 {
-    public enum State
+    enum State
     {
-        INIT, //setup gui
+        INIT,
         START,
-        ABILITY,
-        TARGET,
+        ACTIVE,
         RESOLVE,
-        ENDTURN, //reset gui go to next party member
         EXIT,
     }
 
@@ -23,60 +21,61 @@ namespace Combat
         void Awake()
         {
             fsm = new FiniteStateMachine<State>();
-            fsm.State(State.INIT, StateHandler);
-            fsm.State(State.START, StateHandler);
-            fsm.State(State.ABILITY, StateHandler);
-            fsm.State(State.TARGET, StateHandler);
-            fsm.State(State.RESOLVE, StateHandler);
-            fsm.State(State.ENDTURN, StateHandler);
-            fsm.State(State.EXIT, StateHandler);
+            fsm.State(State.INIT, StateChange);
+            fsm.State(State.START, StartHandler);
+            fsm.State(State.ACTIVE, StateChange);
+            fsm.State(State.RESOLVE, ResolveHandler);
+            fsm.State(State.EXIT, StateChange);
 
             fsm.Transition(State.INIT, State.START, "*");
-            fsm.Transition(State.START, State.ABILITY, "begin");
-            fsm.Transition(State.ABILITY, State.TARGET, "attack"); 
-            fsm.Transition(State.TARGET, State.ABILITY, "escape");
-            fsm.Transition(State.TARGET, State.ABILITY, "confirm");
-            fsm.Transition(State.TARGET, State.RESOLVE, "enemy-selected");
-            fsm.Transition(State.ABILITY, State.RESOLVE, "endturn");
-            fsm.Transition(State.RESOLVE, State.ENDTURN, "confirm");
-            fsm.Transition(State.ENDTURN, State.ABILITY, "unitdone");
-            fsm.Transition(State.ENDTURN, State.START, "partydone");
-            fsm.Transition(State.ENDTURN, State.EXIT, "unitdone");
+            fsm.Transition(State.START, State.ACTIVE, "space");
+            fsm.Transition(State.ACTIVE, State.RESOLVE, "resolve");
+            fsm.Transition(State.RESOLVE, State.ACTIVE, "next");
+            fsm.Transition(State.RESOLVE, State.EXIT, "done");
 
-            Subscribe<string>(MessageLayer.INPUT, "keydown", UpdateFSM);
-            Subscribe<string>(MessageLayer.GUI, "button->click", UpdateFSM);
             Subscribe<string>(MessageLayer.PARTY, "finished", UpdateFSM); //rotate a new party 
-
+            Subscribe<string>(MessageLayer.INPUT, "keydown", UpdateFSM); //rotate a new party 
             _combatParties = ChuTools.PopulateFromChildren<CombatParty>(transform);
 
-            
+
         }
+
+        void StateChange()
+        {
+            string currentState = fsm.CurrentState.ToString();
+            Publish(MessageLayer.COMBAT, "StateChange", currentState);
+        }
+
+
+        void UpdateFSM(string input)
+        {
+            Debug.Log("feed combat fsm with " + input);
+            fsm.Feed(input);
+        }
+        #endregion UnityEvents
         void Start()
         {
             UpdateFSM("*");
         }
-        #endregion UnityEvents
-        void Update()
+
+        void StartHandler()
         {
-            Debug.Log(fsm.CurrentState);
-        }
-        void UpdateFSM(string input)
-        {
-            Debug.Log("feed fsm with " + input);
-            fsm.Feed(input);
+            StateChange();
+            currentParty = _combatParties[0];
 
         }
-        void StateHandler()
+
+        void ResolveHandler()
         {
-            string state = fsm.CurrentState.ToString().ToLower();
-            Publish(MessageLayer.COMBAT, "StateChange", state);
-            Debug.Log("current state is " + state);
+            if (_partyIndex >= _combatParties.Count)
+                _partyIndex = 0;
+            else
+            {
+                _partyIndex += 1;
+                currentParty = _combatParties[0];
+            }
+
         }
-
-        void OnPartyFinished() { }
-        void OnConfirm() { }
-        void OnCancel() { }
-
 
 
         #region Interface
@@ -102,8 +101,6 @@ namespace Combat
         #region variables
 
 
-        public MessageLayer messageLayer = MessageLayer.COMBAT;
-
         private FiniteStateMachine<State> fsm;
 
         [SerializeField]
@@ -115,6 +112,7 @@ namespace Combat
             private set;
         }
 
+        int _partyIndex;
 
         #endregion variables
     }
