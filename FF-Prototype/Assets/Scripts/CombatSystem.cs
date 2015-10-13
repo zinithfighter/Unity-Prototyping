@@ -19,22 +19,17 @@ namespace Combat
 
     public class CombatSystem : MonoBehaviour, IPublisher, ISubscriber
     {
-        void Shout(State state)
-        {
-            Publish(MessageLayer.COMBAT, "state change", state.ToString().ToLower());
-        }
-
         void Awake()
         {
             fsm = new FiniteStateMachine<State>();
-            fsm.State(State.INIT, null);
+            fsm.State(State.INIT, InitHandler);
             fsm.State(State.START, StartHandler);
             fsm.State(State.ACTIVE, ActiveHandler);
             fsm.State(State.RESOLVE, ResolveHandler);
             fsm.State(State.TARGET, TargetHandler);
             fsm.State(State.EXIT, ExitHandler);
 
-            fsm.Transition(State.INIT, State.START, "*");
+            fsm.Transition(State.INIT, State.START, "start");
             fsm.Transition(State.START, State.ACTIVE, "space");
             fsm.Transition(State.ACTIVE, State.TARGET, "attack");
             fsm.Transition(State.TARGET, State.ACTIVE, "escape");
@@ -44,7 +39,11 @@ namespace Combat
             fsm.Transition(State.RESOLVE, State.EXIT, "quit");
             fsm.Transition(State.RESOLVE, State.ACTIVE, "space");
             UpdateFSM("*");
+        }
 
+        void Start()
+        {
+            UpdateFSM("start");
         }
 
         void UpdateFSM(string input)
@@ -53,30 +52,34 @@ namespace Combat
             fsm.Feed(input);
         }
 
-        void FixedUpdate()
+        void Shout(State state)
         {
-            Debug.Log("combat " + fsm.CurrentState);
+            Publish(MessageLayer.COMBAT, "state change", state.ToString().ToLower());
         }
- 
-        void StartHandler()
+
+        void InitHandler()
         {
-            Debug.Log("start state begin");
-            
             Subscribe<string>(MessageLayer.INPUT, "key down", UpdateFSM);
             Subscribe<string>(MessageLayer.GUI, "buttonclick", UpdateFSM);
             _combatParties = ChuTools.PopulateFromChildren<CombatParty>(transform);
+        }
+
+        void StartHandler()
+        {
             Shout(State.START);
         }
 
         void ActiveHandler()
         {
-            Debug.Log("active state begin");
             Shout(State.ACTIVE);
         }
+
         void ResolveHandler()
         {
             if (_partyIndex >= _combatParties.Count)
-            { _partyIndex = 0; }
+            {
+                _partyIndex = 0;
+            }
             else
             {
                 _partyIndex += 1;
@@ -84,16 +87,16 @@ namespace Combat
             }
         }
 
-        void ExitHandler()
-        {
-            Shout(State.EXIT);
-        }
-
         void TargetHandler()
         {
             Shout(State.TARGET);
         }
 
+        void ExitHandler()
+        {
+            Shout(State.EXIT);
+        }
+        
         #region Interface
 
         public void Publish<T>(MessageLayer m, string e, T args)

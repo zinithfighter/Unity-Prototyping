@@ -64,11 +64,11 @@ namespace FiniteStateMachine
     /// expecting an enum but can take in any kind of type</typeparam>
     public class FiniteStateMachine<T>
     {
-        List<State> states; 
+        List<State> states;
         Dictionary<string, List<Transition>> table;
         public FiniteStateMachine()
         {
-            states = new List<State>(); 
+            states = new List<State>();
             table = new Dictionary<string, List<Transition>>();
             Type stateType = typeof(T);
             //if enum
@@ -95,19 +95,28 @@ namespace FiniteStateMachine
         /// for example string or integer values </typeparam>
         /// <param name="input"></param>
         /// <returns></returns>
-        public State Feed<V>(V token)
+        public bool Feed(string token)
         {
+            if (token == "*")
+            {
+                currentState.Handler();
+                return true;
+            } 
+
             foreach (Transition t in table[currentState.id])
             {
-                if (t.input == token.ToString())
-                {                    
+                if (t.input == token)
+                {
                     currentState = t.destination;
-                    currentState.Handler();            
+                    currentState.Handler();
+                    return true;
                 }
             }
 
-            return currentState;
+
+            return false;
         }
+
 
         /// <summary>
         /// Set a states behaviour
@@ -118,14 +127,14 @@ namespace FiniteStateMachine
         /// what will execute when this becomes the current state</param>
         /// <returns></returns>
         public bool State(T stateA, Handler handler)
-        {            
+        {
             State newState = states.Find(x => x.id == stateA.ToString());
-            newState.handler = handler; 
+            newState.handler = handler;
 
             return true;
         }
 
- 
+
         /// <summary>
         /// Create transition between two states
         /// </summary>
@@ -136,7 +145,7 @@ namespace FiniteStateMachine
         /// <returns></returns>
         public bool Transition<V>(T stateA, T stateB, V input)
         {
-            State destination = states.Find(state => state.id == stateB.ToString());            
+            State destination = states.Find(state => state.id == stateB.ToString());
             if (table.ContainsKey(stateA.ToString()))
             {
                 Transition transition = new Transition(input.ToString(), destination);
@@ -149,18 +158,6 @@ namespace FiniteStateMachine
             }
 
             return true;
-        }
- 
-
-        /// <summary>
-        /// return current state of the fsm
-        /// </summary>
-        public Enum CurrentState
-        {
-            get
-            {
-                return currentState.name as Enum;
-            }
         }
 
         /// <summary>
