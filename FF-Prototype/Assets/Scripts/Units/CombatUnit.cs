@@ -3,16 +3,6 @@ using FiniteStateMachine;
 
 public class CombatUnit : MonoBehaviour, IUnit
 {
-    [SerializeField]
-    int _health;
-    [SerializeField]
-    float _attack;
-    [SerializeField]
-    float _defense;
-    [SerializeField]
-    bool _active;
-
-    private FiniteStateMachine<State> fsm;
 
     public enum State
     {
@@ -37,6 +27,16 @@ public class CombatUnit : MonoBehaviour, IUnit
     }  
 
     #region Variables
+    [SerializeField]
+    int _health;
+    [SerializeField]
+    float _attack;
+    [SerializeField]
+    float _defense;
+    [SerializeField]
+    bool _active;
+
+    private FiniteStateMachine<State> fsm;
 
     public float attack { get { return _attack; } set { _attack = value; } }
 

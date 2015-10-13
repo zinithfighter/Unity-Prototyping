@@ -6,20 +6,48 @@ using System.Linq;
 /// </summary>
 namespace FiniteStateMachine
 {
+    /// <summary>
+    /// State object to represent a current state in the machine
+    /// </summary>
     public class State
     {
+        /// <summary>
+        /// the callback function to execute when the state becomes active
+        /// </summary>
         public Delegate handler;
-        public string id;
+
+        /// <summary>
+        /// unique identifier for this state
+        /// </summary>
+        public int id;
+
+        /// <summary>
+        /// the name of this state
+        /// </summary>
         public Enum name;
 
-
+        /// <summary>
+        /// Create a state object
+        /// </summary>
+        /// <param name="stateName">
+        /// name of the state used as key into dictionary
+        /// </param>
+        /// <param name="stateHandler">
+        /// delegate to be executed when this state becomes active
+        /// </param>
         public State(Enum stateName, Delegate stateHandler)
         {
             name = stateName;
             handler = stateHandler;
-            id = stateName.ToString();
+            id = GetHashCode();
         }
 
+        /// <summary>
+        /// public method to execute the delegate attached to this state
+        /// </summary>
+        /// <returns>
+        /// false if something...
+        /// </returns>
         public bool Handler()
         {
             Handler h;
@@ -29,30 +57,52 @@ namespace FiniteStateMachine
                 h();
                 return true;
             }
-            return false;
 
+            return false;
         }
     }
+   
     /// <summary>
-    /// 
+    /// Transition object to represent valid transitions for a given state
     /// </summary>
     public class Transition
     {
-        int id;
+        /// <summary>
+        /// unique identifier for this transition
+        /// </summary>
+        private int id;
+
+        /// <summary>
+        /// defines the transition
+        /// </summary>
         public string input
         {
             get;
             private set;
         }
+
+        /// <summary>
+        /// where to transition to
+        /// </summary>
         public State destination
         {
             get;
             private set;
         }
-        public Transition(string token, State state)
+
+        /// <summary>
+        /// Create a transition object to attach to a state
+        /// </summary>
+        /// <param name="token">
+        /// the required input to change to the destination
+        /// </param>
+        /// <param name="to">
+        /// state to transition to given token
+        /// </param>
+        public Transition(string token, State to)
         {
             input = token;
-            destination = state;
+            destination = to;
             id = GetHashCode();
         }
     }
@@ -64,12 +114,13 @@ namespace FiniteStateMachine
     /// expecting an enum but can take in any kind of type</typeparam>
     public class FiniteStateMachine<T>
     {
-        List<State> states;
-        Dictionary<string, List<Transition>> table;
+        /// <summary>
+        /// create a state machine to manage states
+        /// </summary>
         public FiniteStateMachine()
         {
             states = new List<State>();
-            table = new Dictionary<string, List<Transition>>();
+            table = new Dictionary<Enum, List<Transition>>();
             Type stateType = typeof(T);
             //if enum
             var values = (T[])Enum.GetValues(stateType);
@@ -80,14 +131,12 @@ namespace FiniteStateMachine
                 Enum enumType = v as Enum;
                 State state = new State(enumType, null);
                 states.Add(state);
-                table.Add(state.id, new List<Transition>());
+                table.Add(state.name, new List<Transition>());
             }
 
             currentState = states[0];
         }
-
-
-
+        
         /// <summary>
         /// give input to the machine. if the machine returns true for the given state then transition
         /// </summary>
@@ -103,7 +152,7 @@ namespace FiniteStateMachine
                 return true;
             } 
 
-            foreach (Transition t in table[currentState.id])
+            foreach (Transition t in table[currentState.name])
             {
                 if (t.input == token)
                 {
@@ -112,7 +161,6 @@ namespace FiniteStateMachine
                     return true;
                 }
             }
-
 
             return false;
         }
@@ -128,7 +176,8 @@ namespace FiniteStateMachine
         /// <returns></returns>
         public bool State(T stateA, Handler handler)
         {
-            State newState = states.Find(x => x.id == stateA.ToString());
+            Enum state = stateA as Enum;
+            State newState = states.Find(x => x.name == state);
             newState.handler = handler;
 
             return true;
@@ -145,11 +194,13 @@ namespace FiniteStateMachine
         /// <returns></returns>
         public bool Transition<V>(T stateA, T stateB, V input)
         {
-            State destination = states.Find(state => state.id == stateB.ToString());
-            if (table.ContainsKey(stateA.ToString()))
+            Enum from = stateA as Enum;
+            Enum to = stateB as Enum;
+            State destination = states.Find(state => state.name == to);
+            if (table.ContainsKey(from))
             {
                 Transition transition = new Transition(input.ToString(), destination);
-                table[stateA.ToString()].Add(transition);
+                table[from].Add(transition);
             }
             else
             {
@@ -169,6 +220,12 @@ namespace FiniteStateMachine
             set;
         }
 
+        #region Variables
+        List<State> states;
+
+        Dictionary<Enum, List<Transition>> table;
+
+        #endregion Variables
 
     }
 }
