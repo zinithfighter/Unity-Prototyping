@@ -118,12 +118,10 @@ namespace FiniteStateMachine
         /// what will execute when this becomes the current state</param>
         /// <returns></returns>
         public bool State(T stateA, Handler handler)
-        {
-            Enum state = stateA as Enum;
+        {            
             State newState = states.Find(x => x.id == stateA.ToString());
-            newState.handler = handler;
-            
-            
+            newState.handler = handler; 
+
             return true;
         }
 

@@ -38,12 +38,10 @@ namespace gui
         /// </summary>
         void Awake()
         {
-            Subscribe<string>(MessageLayer.COMBAT, "StateChange", OnCombatChange);
-            Subscribe<string>(MessageLayer.UNIT, "StateChange", OnUnitChange);
-            Subscribe<CombatUnit>(MessageLayer.UNIT, "UnitChange", OnUnitChange);
+            Subscribe<string>(MessageLayer.COMBAT, "State Change", OnCombatChange);            
+            Subscribe<CombatUnit>(MessageLayer.UNIT, "Unit Change", OnUnitChange);
 
-            _beginPanel.SetActive(false);
-            //_confirmPanel.SetActive(false);
+            _beginPanel.SetActive(false); 
             _infoPanel.SetActive(false);
             _combatPanel.SetActive(false);
         }
@@ -56,33 +54,7 @@ namespace gui
         {
             _abilityInfo.text = arg;
         }
-
-        void OnUnitChange(string state)
-        {
-            state = state.ToLower();
-            //Debug.Log("combat state change " + state);
-            switch (state)
-            {
-                case "init":
-                    break;//setup gui
-                case "start":
-                    _phasePanel.SetActive(true);
-                    _combatPanel.SetActive(false);
-                    break;
-                case "ability":
-                    _phasePanel.SetActive(false);
-                    _combatPanel.SetActive(true);
-                    break;
-                case "target":
-                    break;
-                case "resolve":
-                    break;
-                case "endturn":
-                    break;
-                case "exit":
-                    break;
-            }
-        }
+ 
 
         /// <summary>
         /// when the unit changes update the info text
@@ -101,8 +73,7 @@ namespace gui
         /// </summary>
         /// <param name="state"></param>
         void OnCombatChange(string state)
-        {
-            Debug.Log("combat state change " + state);
+        { 
             state = state.ToLower();
             switch (state)
             {

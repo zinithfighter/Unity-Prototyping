@@ -15,7 +15,7 @@ static public class EventSystem
     /// <param name="message"></param>
     static public void Broadcast(MessageLayer t, string e)
     {
-        string eventType = format(t, e).Replace(" ", string.Empty);
+        string eventType = format(t, e).Replace(" ", string.Empty).ToLower();
         //Debug.Log("Event Broadcast: " + message);
         Delegate d;
         if (_eventTable.TryGetValue(eventType, out d))
@@ -29,7 +29,7 @@ static public class EventSystem
 
     static public void Broadcast<T>(MessageLayer t, string e, T arg)
     {
-        string eventType = format(t, e).Replace(" ", string.Empty);
+        string eventType = format(t, e).Replace(" ", string.Empty).ToLower();
        // Debug.Log("Event Broadcast: " + eventType);
         Delegate d;
         if (_eventTable.TryGetValue(eventType, out d))
@@ -41,22 +41,7 @@ static public class EventSystem
 
         }
     }
-
-    static public void Broadcast<T,V>(MessageLayer m, string e, T arg1, V arg2)
-    {
-        string message = format(m, e);
-        // Debug.Log("Event Broadcast: " + message);
-        Delegate d;
-        if (_eventTable.TryGetValue(message, out d))
-        {
-            //Debug.Log("execute " + message);
-            Callback<T,V> s = d as Callback<T,V>;
-            if (s != null)
-                s(arg1, arg2);
-
-        }
-    }
-
+ 
     /// <summary>
     /// subscribe to a message without providing arguments for the delegate
     /// </summary>
@@ -65,7 +50,7 @@ static public class EventSystem
     /// <param name="sub">the object that implements the interface</param>
     static public bool Subscribe(MessageLayer t, string e, Callback c, ISubscriber s)
     {
-        string eventType = format(t, e).Replace(" ", string.Empty);
+        string eventType = format(t, e).Replace(" ", string.Empty).ToLower();
 
         if (_eventTable.ContainsKey(eventType))
         {
@@ -92,7 +77,7 @@ static public class EventSystem
     /// <returns></returns>
     static public bool Subscribe<T>(MessageLayer t, string e, Callback<T> c, ISubscriber s)
     {
-        string eventType = format(t, e).Replace(" ", string.Empty);
+        string eventType = format(t, e).Replace(" ", string.Empty).ToLower();
 
         if (_eventTable.ContainsKey(eventType))
         {
@@ -118,7 +103,7 @@ static public class EventSystem
     /// <returns></returns>
     static public bool Subscribe<T,V>(MessageLayer t, string e, Callback<T,V> c, ISubscriber s)
     {
-        string eventType = format(t, e).Replace(" ", string.Empty);
+        string eventType = format(t, e).Replace(" ", string.Empty).ToLower();
 
         if (_eventTable.ContainsKey(eventType))
         {
@@ -141,7 +126,7 @@ static public class EventSystem
     /// <returns></returns>
     static public string format(MessageLayer t, string m)
     {
-        return t.ToString().ToLower() + ":" + m.ToLower();
+        return t.ToString() + ":" + m;
     }
 
     static public List<string> Subscribers
