@@ -2,29 +2,18 @@
 using FiniteStateMachine; 
 
 public class CombatUnit : MonoBehaviour, IUnit
-{
-
-    public enum State
+{ 
+    public void SetActive(bool active)
     {
-        INIT, //setup gui
-        DISABLED,
-        ACTIVE,
-        EXIT,
- 
-    }
- 
-    void ActiveHandler()
-    {        
+        _active = active;
         Animator anim = GetComponentInChildren<Animator>();
-        anim.SetTrigger("idle");
+        if(active)
+            anim.SetTrigger("idle");
+        else        
+            anim.SetTrigger("noidle");
     }
 
-    private void DisabledHandler()
-    {
-         //tell everyone a unit has changed 
-        Animator anim = GetComponentInChildren<Animator>();
-        anim.SetTrigger("noidle");
-    }  
+    
 
     #region Variables
     [SerializeField]
@@ -35,8 +24,7 @@ public class CombatUnit : MonoBehaviour, IUnit
     float _defense;
     [SerializeField]
     bool _active;
-
-    private FiniteStateMachine<State> fsm;
+ 
 
     public float attack { get { return _attack; } set { _attack = value; } }
 

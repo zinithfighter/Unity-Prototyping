@@ -25,8 +25,8 @@ namespace Combat
             fsm.State(State.INIT, InitHandler);
             fsm.State(State.START, StartHandler);
             fsm.State(State.ACTIVE, ActiveHandler);
-            fsm.State(State.RESOLVE, ResolveHandler);
             fsm.State(State.TARGET, TargetHandler);
+            fsm.State(State.RESOLVE, ResolveHandler);
             fsm.State(State.EXIT, ExitHandler);
 
             fsm.Transition(State.INIT, State.START, "start");
@@ -52,8 +52,9 @@ namespace Combat
             fsm.Feed(input);
         }
 
-        void Shout(State state)
+        void OnStateChange(State state)
         {
+            Debug.Log("State change: Combat: " + state.ToString().ToLower());
             Publish(MessageLayer.COMBAT, "state change", state.ToString().ToLower());
         }
 
@@ -66,37 +67,42 @@ namespace Combat
 
         void StartHandler()
         {
-            Shout(State.START);
+            OnStateChange(State.START);
+            _partyIndex = 0;
+            currentParty = _combatParties[_partyIndex];
+            currentParty.Activate();
         }
 
         void ActiveHandler()
         {
-            Shout(State.ACTIVE);
+            OnStateChange(State.ACTIVE);            
+            
         }
 
         void ResolveHandler()
         {
-            if (_partyIndex >= _combatParties.Count)
+            OnStateChange(State.RESOLVE);
+            if (_partyIndex >= _combatParties.Count - 1)
             {
                 _partyIndex = 0;
             }
             else
             {
                 _partyIndex += 1;
-                currentParty = _combatParties[0];
+                currentParty = _combatParties[_partyIndex];
             }
         }
 
         void TargetHandler()
         {
-            Shout(State.TARGET);
+            OnStateChange(State.TARGET);
         }
 
         void ExitHandler()
         {
-            Shout(State.EXIT);
+            OnStateChange(State.EXIT);
         }
-        
+
         #region Interface
 
         public void Publish<T>(MessageLayer m, string e, T args)
@@ -123,11 +129,10 @@ namespace Combat
         [SerializeField]
         private List<CombatParty> _combatParties;
 
-        static public CombatParty currentParty
-        {
-            get;
-            private set;
-        }
+        [SerializeField]
+        private CombatParty currentParty;
+
+         
 
         int _partyIndex;
 

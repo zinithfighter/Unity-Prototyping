@@ -28,18 +28,17 @@ namespace Party
             fsm.State(State.EXIT, ExitHandler);
 
             fsm.Transition(State.INIT, State.START, "start");
-            fsm.Transition(State.START, State.ACTIVE, "active");
+            fsm.Transition(State.START, State.ACTIVE, "activate");
             fsm.Transition(State.ACTIVE, State.RESOLVE, "resolve");
             fsm.Transition(State.RESOLVE, State.ACTIVE, "next");
             fsm.Transition(State.RESOLVE, State.EXIT, "dead");
-            fsm.Transition(State.RESOLVE, State.START, "party done");
+            fsm.Transition(State.RESOLVE, State.START, "done");
 
             UpdateFSM("*");
         }
 
         void UpdateFSM(string input)
-        {
-            Debug.Log("feed party fsm with " + input);
+        {            
             fsm.Feed(input);
         }
 
@@ -57,32 +56,45 @@ namespace Party
 
         } 
 
+        public void Activate()
+        {
+            UpdateFSM("activate");
+        }
+
         void StartHandler()
         {
             Shout(State.START);
-            _unitIndex = 0;
+             
+            _unitIndex = 0;            
+            _currentUnit = _partyMembers[_unitIndex];
+            _currentUnit.SetActive(false);
         }
 
         void ActiveHandler()
         {
-            Shout(State.ACTIVE);
-            if (_unitIndex >= _partyMembers.Count)
-                _currentUnit = _partyMembers[0];
-            else
-            {
-                _unitIndex += 1; //increment the unit index
-                turnsTaken += 1; //increment the turns taken 
-                _currentUnit = _partyMembers[_unitIndex];
-            }
-        }
+            Shout(State.ACTIVE);                        
+            _currentUnit = _partyMembers[_unitIndex];
+            _currentUnit.SetActive(true);
+            
+        } 
 
         void ResolveHandler()
         {
             Shout(State.RESOLVE);
-            if (_unitIndex >= _partyMembers.Count)
+            if (_unitIndex >= _partyMembers.Count - 1)
+            {                
+                _unitIndex = 0;
+                _currentUnit = _partyMembers[_unitIndex];
+                _currentUnit.SetActive(false);
                 UpdateFSM("done");
+            }
             else
+            {
+                _currentUnit.SetActive(false);
+                _unitIndex += 1; //increment the unit index  
+                turnsTaken += 1;
                 UpdateFSM("next");
+            }
         }
 
         void ExitHandler()

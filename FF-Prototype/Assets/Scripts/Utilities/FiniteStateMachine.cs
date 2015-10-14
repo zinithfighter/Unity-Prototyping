@@ -177,7 +177,7 @@ namespace FiniteStateMachine
         public bool State(T stateA, Handler handler)
         {
             Enum state = stateA as Enum;
-            State newState = states.Find(x => x.name == state);
+            State newState = states.Find(x => x.name.ToString() == state.ToString());
             newState.handler = handler;
 
             return true;
@@ -196,7 +196,7 @@ namespace FiniteStateMachine
         {
             Enum from = stateA as Enum;
             Enum to = stateB as Enum;
-            State destination = states.Find(state => state.name == to);
+            State destination = states.Find(state => state.name.ToString() == to.ToString());
             if (table.ContainsKey(from))
             {
                 Transition transition = new Transition(input.ToString(), destination);
