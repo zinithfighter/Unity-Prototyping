@@ -5,12 +5,21 @@ public class CombatUnit : MonoBehaviour, IUnit
 { 
     public void SetActive(bool active)
     {
+        EventSystem.Broadcast<CombatUnit>(MessageLayer.UNIT, "unit change", this);
+        Debug.Log("set unit " + active);
         _active = active;
         Animator anim = GetComponentInChildren<Animator>();
-        if(active)
+        if (_active)
+        {
             anim.SetTrigger("idle");
-        else        
+         
+
+        }
+        else
+        {
             anim.SetTrigger("noidle");
+        }
+        
     }
 
     

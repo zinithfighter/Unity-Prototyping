@@ -20,6 +20,9 @@ namespace gui
         private GameObject _infoPanel;
 
         [SerializeField]
+        private GameObject _resolvePanel;
+
+        [SerializeField]
         private GameObject _beginPanel;
 
 
@@ -38,12 +41,12 @@ namespace gui
         /// </summary>
         void Awake()
         {
-            Subscribe<string>(MessageLayer.COMBAT, "State Change", OnCombatChange);            
+            Subscribe<string>(MessageLayer.COMBAT, "enter state", OnCombatChange);
             Subscribe<CombatUnit>(MessageLayer.UNIT, "Unit Change", OnUnitChange);
 
-            _beginPanel.SetActive(false); 
-            _infoPanel.SetActive(false);
+            _beginPanel.SetActive(false);
             _combatPanel.SetActive(false);
+            _resolvePanel.SetActive(false);
         }
 
 
@@ -54,7 +57,7 @@ namespace gui
         {
             _abilityInfo.text = arg;
         }
- 
+
 
         /// <summary>
         /// when the unit changes update the info text
@@ -62,6 +65,7 @@ namespace gui
         /// <param name="arg"></param>
         void OnUnitChange(CombatUnit arg)
         {
+            //Debug.Log("ui unit change");
             _partyInfo.text =
                 "Name: " + arg.name +
                 "\nHP: " + arg.health +
@@ -73,25 +77,30 @@ namespace gui
         /// </summary>
         /// <param name="state"></param>
         void OnCombatChange(string state)
-        { 
+        {
+            Debug.Log("ui change from combat with " + state);
+            _beginPanel.SetActive(false);
+            _combatPanel.SetActive(false);
+            _resolvePanel.SetActive(false);
+            _phasePanel.SetActive(false);
+
             state = state.ToLower();
             switch (state)
             {
                 case "init":
-                    _beginPanel.SetActive(false);
-                    //_confirmPanel.SetActive(false);
-                    _infoPanel.SetActive(false);
-                    _combatPanel.SetActive(false);
                     break;//setup gui
                 case "start":
                     _phasePanel.SetActive(true);
-                    _combatPanel.SetActive(false);
                     break;
                 case "active":
-                    _phasePanel.SetActive(false);
+                    _phasePanel.SetActive(true);
                     _combatPanel.SetActive(true);
                     break;
+                case "endturn":
+                    _phasePanel.SetActive(true);
+                    break;
                 case "resolve":
+                    _resolvePanel.SetActive(true); 
                     break;
 
             }

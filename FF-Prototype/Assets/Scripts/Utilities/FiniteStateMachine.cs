@@ -146,6 +146,7 @@ namespace FiniteStateMachine
         /// <returns></returns>
         public bool Feed(string token)
         {
+          
             if (token == "*")
             {
                 currentState.Handler();

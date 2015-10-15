@@ -12,97 +12,108 @@ namespace Party
         INIT,
         START,
         ACTIVE,
-        RESOLVE,
+        INACTIVE,
+        TURN,
         EXIT,
     }
 
     public class CombatParty : MonoBehaviour, IPublisher, ISubscriber
-    {                
+    {
+
+        public void Activate()
+        {
+            Debug.Log("activate party");
+            UpdateFSM("activate");            
+            _active = true;
+        }
+
         void Awake()
         {
             fsm = new FiniteStateMachine<State>();
             fsm.State(State.INIT, InitHandler);
             fsm.State(State.START, StartHandler);
+            fsm.State(State.INACTIVE, InactiveHandler);
             fsm.State(State.ACTIVE, ActiveHandler);
-            fsm.State(State.RESOLVE, ResolveHandler);
+            fsm.State(State.TURN, TurnHandler);
             fsm.State(State.EXIT, ExitHandler);
 
             fsm.Transition(State.INIT, State.START, "start");
-            fsm.Transition(State.START, State.ACTIVE, "activate");
-            fsm.Transition(State.ACTIVE, State.RESOLVE, "resolve");
-            fsm.Transition(State.RESOLVE, State.ACTIVE, "next");
-            fsm.Transition(State.RESOLVE, State.EXIT, "dead");
-            fsm.Transition(State.RESOLVE, State.START, "done");
+            fsm.Transition(State.START, State.INACTIVE, "inactive");
+            fsm.Transition(State.INACTIVE, State.ACTIVE, "activate");
+            fsm.Transition(State.ACTIVE, State.TURN, "endturn"); //on combat resolve go to party resolve
 
+            fsm.Transition(State.TURN, State.ACTIVE, "active");            
+            fsm.Transition(State.TURN, State.EXIT, "done");
+            fsm.Transition(State.EXIT, State.INACTIVE, "inactive");
             UpdateFSM("*");
         }
 
-        void UpdateFSM(string input)
-        {            
-            fsm.Feed(input);
+        void OnStateChange(State state)
+        {
+            Debug.Log("State change: Party: " + state.ToString().ToLower());
+            Publish(MessageLayer.PARTY, "state change", state.ToString().ToLower() );
         }
 
-        void Shout(State state)
+        void UpdateFSM(string input)
         {
-            Publish(MessageLayer.PARTY, "state change", state);
+            //Debug.Log("feed party fsm with " + input);            
+            fsm.Feed(input);
         }
 
         void InitHandler()
         {
-            Shout(State.INIT);
+            OnStateChange(State.INIT);
             //subscribe to combat state changes and give fsm the result
-            Subscribe<string>(MessageLayer.COMBAT, "state change", UpdateFSM);
+            Subscribe<string>(MessageLayer.COMBAT, "enter state", UpdateFSM); 
             _partyMembers = ChuTools.PopulateFromChildren<CombatUnit>(transform);
 
-        } 
 
-        public void Activate()
-        {
-            UpdateFSM("activate");
         }
 
-        void StartHandler()
+        void StartHandler() //start of party
         {
-            Shout(State.START);
-             
-            _unitIndex = 0;            
+            OnStateChange(State.START);            
             _currentUnit = _partyMembers[_unitIndex];
-            _currentUnit.SetActive(false);
+            UpdateFSM("inactive");
         }
 
-        void ActiveHandler()
+        void InactiveHandler() //start of unit
         {
-            Shout(State.ACTIVE);                        
+            OnStateChange(State.INACTIVE);            
+            
+        }
+
+        void ActiveHandler() //start of unit
+        {
+            OnStateChange(State.ACTIVE);
             _currentUnit = _partyMembers[_unitIndex];
             _currentUnit.SetActive(true);
-            
-        } 
+        }
 
-        void ResolveHandler()
+        void TurnHandler()
         {
-            Shout(State.RESOLVE);
+            OnStateChange(State.TURN);
             if (_unitIndex >= _partyMembers.Count - 1)
-            {                
-                _unitIndex = 0;
-                _currentUnit = _partyMembers[_unitIndex];
-                _currentUnit.SetActive(false);
-                UpdateFSM("done");
-            }
-            else
             {
                 _currentUnit.SetActive(false);
-                _unitIndex += 1; //increment the unit index  
-                turnsTaken += 1;
-                UpdateFSM("next");
+                _currentUnit = null;
+                UpdateFSM("done");
+                return;
             }
+
+            _currentUnit.SetActive(false);
+            _unitIndex++; //increment the unit index  
+            turnsTaken++;
         }
 
         void ExitHandler()
         {
-            Shout(State.EXIT);
+            OnStateChange(State.EXIT);
+            EventSystem.RemoveSubscriber(MessageLayer.COMBAT, "state change", this);
             _unitIndex = 0;
+            UpdateFSM("inactive");
         }
-                
+
         #region Interfaces
         public void Publish(MessageLayer m, string e)
         {
@@ -124,9 +135,8 @@ namespace Party
             EventSystem.Subscribe<T>(t, e, c, this);
         }
         #endregion Interfaces
-        
-        #region Variables
 
+        #region Variables
         private FiniteStateMachine<State> fsm;
         /// <summary>
         /// the list of units participating in combat

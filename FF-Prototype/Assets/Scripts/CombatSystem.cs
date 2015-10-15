@@ -10,12 +10,11 @@ namespace Combat
         INIT,
         START,
         ACTIVE,
-        TARGET,
-        RESOLVE,
+        TARGET,     
+        ENDTURN,   
+        RESOLVE, //Determine if this party needs to be changed out
         EXIT,
     }
-
-
 
     public class CombatSystem : MonoBehaviour, IPublisher, ISubscriber
     {
@@ -27,17 +26,16 @@ namespace Combat
             fsm.State(State.ACTIVE, ActiveHandler);
             fsm.State(State.TARGET, TargetHandler);
             fsm.State(State.RESOLVE, ResolveHandler);
+            fsm.State(State.ENDTURN, EndTurnHandler);
             fsm.State(State.EXIT, ExitHandler);
 
-            fsm.Transition(State.INIT, State.START, "start");
-            fsm.Transition(State.START, State.ACTIVE, "space");
-            fsm.Transition(State.ACTIVE, State.TARGET, "attack");
-            fsm.Transition(State.TARGET, State.ACTIVE, "escape");
-            fsm.Transition(State.TARGET, State.RESOLVE, "targetselected");
-            fsm.Transition(State.ACTIVE, State.RESOLVE, "endturn");
-            fsm.Transition(State.ACTIVE, State.RESOLVE, "defend");
-            fsm.Transition(State.RESOLVE, State.EXIT, "quit");
-            fsm.Transition(State.RESOLVE, State.ACTIVE, "space");
+            fsm.Transition(State.INIT, State.START, "start");//combat
+            fsm.Transition(State.START, State.ACTIVE, "space");//input
+            fsm.Transition(State.ACTIVE, State.ENDTURN, "endturn");//gui
+            fsm.Transition(State.ENDTURN, State.RESOLVE, "turn");//party
+            fsm.Transition(State.RESOLVE, State.ACTIVE, "space");//input
+            fsm.Transition(State.RESOLVE, State.START, "exit");//party
+            fsm.Transition(State.RESOLVE, State.EXIT, "quit");//party
             UpdateFSM("*");
         }
 
@@ -48,50 +46,66 @@ namespace Combat
 
         void UpdateFSM(string input)
         {
-            Debug.Log("feed combat fsm with " + input);
+           // Debug.Log("feed combat fsm with " + input);
             fsm.Feed(input);
         }
 
         void OnStateChange(State state)
         {
             Debug.Log("State change: Combat: " + state.ToString().ToLower());
-            Publish(MessageLayer.COMBAT, "state change", state.ToString().ToLower());
+            Publish(MessageLayer.COMBAT, "enter state", state.ToString().ToLower());
         }
 
         void InitHandler()
         {
+            //input events that will drive this fsm
+            //"space" "escape"
             Subscribe<string>(MessageLayer.INPUT, "key down", UpdateFSM);
-            Subscribe<string>(MessageLayer.GUI, "buttonclick", UpdateFSM);
+            //gui events that will drive this fsm
+            //"attack" "end turn" "defend"
+            Subscribe<string>(MessageLayer.GUI, "button click", UpdateFSM);
+
+            //trigger resolve to active for this machine
+            Subscribe<string>(MessageLayer.PARTY, "state change", UpdateFSM);
             _combatParties = ChuTools.PopulateFromChildren<CombatParty>(transform);
+            _partyIndex = 0;
         }
 
         void StartHandler()
         {
-            OnStateChange(State.START);
-            _partyIndex = 0;
+            OnStateChange(State.START);            
             currentParty = _combatParties[_partyIndex];
-            currentParty.Activate();
+            
         }
 
         void ActiveHandler()
+        {            
+            OnStateChange(State.ACTIVE);
+            currentParty.Activate();
+        }
+
+        void EndTurnHandler()
         {
-            OnStateChange(State.ACTIVE);            
-            
+            OnStateChange(State.ENDTURN);
         }
 
         void ResolveHandler()
         {
             OnStateChange(State.RESOLVE);
+
             if (_partyIndex >= _combatParties.Count - 1)
             {
                 _partyIndex = 0;
-            }
-            else
+                return;
+            }  
+            
+            if(currentParty.turnsTaken >= currentParty.partySize -1)
             {
-                _partyIndex += 1;
-                currentParty = _combatParties[_partyIndex];
-            }
+                _partyIndex++;
+            }          
         }
+
+        
 
         void TargetHandler()
         {
@@ -121,7 +135,7 @@ namespace Combat
         }
         #endregion Interface
 
-        #region variables
+        #region Variables
 
 
         private FiniteStateMachine<State> fsm;
@@ -136,7 +150,7 @@ namespace Combat
 
         int _partyIndex;
 
-        #endregion variables
+        #endregion Variables
     }
 
 

@@ -118,6 +118,12 @@ static public class EventSystem
         return true;
     }
 
+    static public void RemoveSubscriber(MessageLayer t, string e, ISubscriber s)
+    {
+        string eventType = format(t, e).Replace(" ", string.Empty).ToLower();
+        _subscribers.Remove(s.ToString() + ":" + eventType);
+    }
+
     /// <summary>
     /// format a message with its type and message
     /// </summary>
