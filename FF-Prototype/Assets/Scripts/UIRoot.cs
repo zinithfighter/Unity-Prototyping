@@ -11,10 +11,7 @@ namespace gui
     public class UIRoot : MonoBehaviour, ISubscriber
     {
         [SerializeField]
-        private GameObject _combatPanel;
-
-        //[SerializeField]
-        //private GameObject _confirmPanel;
+        private GameObject _combatPanel;        
 
         [SerializeField]
         private GameObject _infoPanel;
@@ -24,7 +21,6 @@ namespace gui
 
         [SerializeField]
         private GameObject _beginPanel;
-
 
         [SerializeField]
         private GameObject _phasePanel;
@@ -116,7 +112,7 @@ namespace gui
 
         public void Subscribe<T>(MessageLayer t, string e, Callback<T> c)
         {
-            EventSystem.Subscribe<T>(t, e, c, this);
+            EventSystem.Subscribe(t, e, c, this);
         }
 
     }

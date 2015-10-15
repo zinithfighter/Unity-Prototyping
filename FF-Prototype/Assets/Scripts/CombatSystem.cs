@@ -104,9 +104,7 @@ namespace Combat
                 _partyIndex++;
             }          
         }
-
         
-
         void TargetHandler()
         {
             OnStateChange(State.TARGET);
