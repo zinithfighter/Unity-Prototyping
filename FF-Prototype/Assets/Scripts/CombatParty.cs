@@ -17,7 +17,7 @@ namespace Party
         EXIT,
     }
 
-    public class CombatParty : MonoBehaviour, IPublisher, ISubscriber
+    public class CombatParty : Observer
     {
 
         public void Activate()
@@ -114,27 +114,7 @@ namespace Party
             UpdateFSM("inactive");
         }
 
-        #region Interfaces
-        public void Publish(MessageLayer m, string e)
-        {
-            EventSystem.Broadcast(m, e);
-        }
 
-        public void Publish<T>(MessageLayer m, string e, T args)
-        {
-            EventSystem.Broadcast<T>(m, e, args);
-        }
-
-        public void Subscribe(MessageLayer t, string e, Callback c)
-        {
-            EventSystem.Subscribe(t, e, c, this);
-        }
-
-        public void Subscribe<T>(MessageLayer t, string e, Callback<T> c)
-        {
-            EventSystem.Subscribe<T>(t, e, c, this);
-        }
-        #endregion Interfaces
 
         #region Variables
         private FiniteStateMachine<State> fsm;
