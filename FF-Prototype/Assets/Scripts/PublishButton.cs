@@ -1,8 +1,7 @@
-﻿using UnityEngine;
-
+﻿
 namespace gui
 {
-    public class PublishButton : MonoBehaviour, IPublisher
+    public class PublishButton : Observer
     {
         MessageLayer messageLayer = MessageLayer.GUI;
         void Awake()
@@ -18,17 +17,6 @@ namespace gui
         {
             Publish(messageLayer, "buttonhover", gameObject.name.ToLower());
         }
-        public void Publish(MessageLayer m, string e)
-        {
-            EventSystem.Broadcast(m, e);
-        } 
-
-        public void Publish<T>(MessageLayer m, string e, T args)
-        {
-            
-            EventSystem.Broadcast<T>(m, e, args);
-        }
-
 
     }
 }

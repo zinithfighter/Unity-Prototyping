@@ -10,13 +10,14 @@ namespace Combat
         INIT,
         START,
         ACTIVE,
+        BATTLE,
         TARGET,     
         ENDTURN,   
         RESOLVE, //Determine if this party needs to be changed out
         EXIT,
     }
 
-    public class CombatSystem : MonoBehaviour, IPublisher, ISubscriber
+    public class CombatSystem : Observer
     {
         void Awake()
         {
@@ -115,25 +116,7 @@ namespace Combat
         void ExitHandler()
         {
             OnStateChange(State.EXIT);
-        }
-
-        #region Interface
-
-        public void Publish<T>(MessageLayer m, string e, T args)
-        {
-            EventSystem.Broadcast(m, e, args);
-        }
-
-        public void Subscribe<T>(MessageLayer t, string e, Callback<T> c)
-        {
-            EventSystem.Subscribe(t, e, c, this);
-        }
-
-        public void Publish(MessageLayer m, string e)
-        {
-            EventSystem.Broadcast(m, e);
-        }
-        #endregion Interface
+        }        
 
         #region Variables
 

@@ -8,7 +8,7 @@ namespace gui
         HOVER,
         CLICK,
     }
-    public class UIRoot : MonoBehaviour, ISubscriber
+    public class UIRoot : Observer
     {
         [SerializeField]
         private GameObject _combatPanel;
@@ -105,19 +105,7 @@ namespace gui
 
             }
         }
-
-
-
-
-        public void Subscribe(MessageLayer t, string e, Callback c)
-        {
-            EventSystem.Subscribe(t, e, c, this);
-        }
-
-        public void Subscribe<T>(MessageLayer t, string e, Callback<T> c)
-        {
-            EventSystem.Subscribe<T>(t, e, c, this);
-        }
+ 
 
     }
 }
