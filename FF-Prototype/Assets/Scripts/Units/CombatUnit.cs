@@ -1,19 +1,17 @@
 ﻿using UnityEngine;
 using FiniteStateMachine; 
 
-public class CombatUnit : MonoBehaviour, IUnit
+public class CombatUnit : Observer, IUnit
 { 
     public void SetActive(bool active)
     {
-        EventSystem.Broadcast<CombatUnit>(MessageLayer.UNIT, "unit change", this);
+        Publish(MessageLayer.UNIT, "unit change", this);
         Debug.Log("set unit " + active);
         _active = active;
         Animator anim = GetComponentInChildren<Animator>();
         if (_active)
         {
             anim.SetTrigger("idle");
-         
-
         }
         else
         {

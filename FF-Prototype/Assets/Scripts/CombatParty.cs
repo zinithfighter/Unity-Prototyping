@@ -37,20 +37,21 @@ namespace Party
             fsm.State(State.TURN, TurnHandler);
             fsm.State(State.EXIT, ExitHandler);
 
-            fsm.Transition(State.INIT, State.START, "start");
-            fsm.Transition(State.START, State.INACTIVE, "inactive");
-            fsm.Transition(State.INACTIVE, State.ACTIVE, "activate");
-            fsm.Transition(State.ACTIVE, State.TURN, "endturn"); //on combat resolve go to party resolve
-
-            fsm.Transition(State.TURN, State.ACTIVE, "active");            
-            fsm.Transition(State.TURN, State.EXIT, "done");
-            fsm.Transition(State.EXIT, State.INACTIVE, "inactive");
+            fsm.Transition(State.INIT, State.START, "start"); //subscribe to messages
+            fsm.Transition(State.START, State.INACTIVE, "inactive"); //set all parties inactive
+            fsm.Transition(State.INACTIVE, State.ACTIVE, "activate"); //begin animation on the first unit
+            //manual activation from the combat system to start this particular party
+            //if not activated from the combat system then all parties will be subscribing
+            fsm.Transition(State.ACTIVE, State.TURN, "endturn"); //take turn when the combat fsm has moved to endturn
+            fsm.Transition(State.TURN, State.ACTIVE, "active");  //turn->active when a unit has finished taking turn
+            fsm.Transition(State.TURN, State.EXIT, "done"); //exit this fsm when all units have finished
+            fsm.Transition(State.EXIT, State.INACTIVE, "inactive"); //move to inactive after finished
             UpdateFSM("*");
         }
 
         void OnStateChange(State state)
         {
-            Debug.Log("State change: Party: " + state.ToString().ToLower());
+            //Debug.Log("State change: Party: " + state.ToString().ToLower());
             Publish(MessageLayer.PARTY, "state change", state.ToString().ToLower() );
         }
 
@@ -66,8 +67,6 @@ namespace Party
             //subscribe to combat state changes and give fsm the result
             Subscribe<string>(MessageLayer.COMBAT, "enter state", UpdateFSM); 
             _partyMembers = ChuTools.PopulateFromChildren<CombatUnit>(transform);
-
-
         }
 
         void StartHandler() //start of party
@@ -79,8 +78,9 @@ namespace Party
 
         void InactiveHandler() //start of unit
         {
-            OnStateChange(State.INACTIVE);            
-            
+            _unitIndex = 0;
+            turnsTaken = 0;
+            OnStateChange(State.INACTIVE);                                   
         }
 
         void ActiveHandler() //start of unit
@@ -109,8 +109,7 @@ namespace Party
         void ExitHandler()
         {
             OnStateChange(State.EXIT);
-            EventSystem.RemoveSubscriber(MessageLayer.COMBAT, "state change", this);
-            _unitIndex = 0;
+            EventSystem.RemoveSubscriber(MessageLayer.COMBAT, "state change", this);            
             UpdateFSM("inactive");
         }
 
@@ -148,7 +147,11 @@ namespace Party
         /// how many turns we have taken
         /// </summary>
         public int turnsTaken;
-
+        public string partyName
+        {
+            get { return name; }
+            private set { partyName = name; }
+        }
         /// <summary>
         /// number of members in the group
         /// </summary>    

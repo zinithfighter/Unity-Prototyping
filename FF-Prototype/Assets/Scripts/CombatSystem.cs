@@ -10,7 +10,7 @@ namespace Combat
         INIT,
         START,
         ACTIVE,
-        BATTLE,
+        PAUSED,
         TARGET,     
         ENDTURN,   
         RESOLVE, //Determine if this party needs to be changed out
@@ -31,19 +31,25 @@ namespace Combat
             fsm.State(State.EXIT, ExitHandler);
 
             fsm.Transition(State.INIT, State.START, "start");//combat
+
             fsm.Transition(State.START, State.ACTIVE, "space");//input
+
             fsm.Transition(State.ACTIVE, State.ENDTURN, "endturn");//gui
+            fsm.Transition(State.ACTIVE, State.ENDTURN, "space");//gui
+
             fsm.Transition(State.ENDTURN, State.RESOLVE, "turn");//party
+
             fsm.Transition(State.RESOLVE, State.ACTIVE, "space");//input
             fsm.Transition(State.RESOLVE, State.START, "exit");//party
             fsm.Transition(State.RESOLVE, State.EXIT, "quit");//party
+
             UpdateFSM("*");
         }
 
         void Start()
         {
             UpdateFSM("start");
-        }
+        }        
 
         void UpdateFSM(string input)
         {
@@ -68,6 +74,7 @@ namespace Combat
 
             //trigger resolve to active for this machine
             Subscribe<string>(MessageLayer.PARTY, "state change", UpdateFSM);
+            Subscribe<string>(MessageLayer.GAME, "state change", UpdateFSM);
             _combatParties = ChuTools.PopulateFromChildren<CombatParty>(transform);
             _partyIndex = 0;
         }
@@ -76,7 +83,7 @@ namespace Combat
         {
             OnStateChange(State.START);            
             currentParty = _combatParties[_partyIndex];
-            
+            Publish(MessageLayer.COMBAT, "party change", currentParty);    
         }
 
         void ActiveHandler()
@@ -93,7 +100,6 @@ namespace Combat
         void ResolveHandler()
         {
             OnStateChange(State.RESOLVE);
-
             if (_partyIndex >= _combatParties.Count - 1)
             {
                 _partyIndex = 0;
@@ -103,7 +109,8 @@ namespace Combat
             if(currentParty.turnsTaken >= currentParty.partySize -1)
             {
                 _partyIndex++;
-            }          
+            }
+            
         }
         
         void TargetHandler()

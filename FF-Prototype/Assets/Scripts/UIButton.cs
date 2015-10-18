@@ -1,31 +1,40 @@
-﻿using UnityEngine;
-using System.Collections;
-using UnityEngine.UI;
+﻿using System;
+using UnityEngine;
+using UnityEngine.EventSystems;
 
-[ExecuteInEditMode]
-public class UIButton : MonoBehaviour
+public class UIButton : Observer, IPointerEnterHandler, IPointerClickHandler, IPointerExitHandler
 {
-#if UNITY_EDITOR
-    void Update()
+    public AudioClip a_hovered;
+    public AudioClip a_clicked;
+    private AudioSource a_source;
+ public void Awake()
     {
-        if (Application.isPlaying == false)
-            Rename();
+        a_source = GetComponent<AudioSource>();
+    }
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        PlayAudio(a_hovered);
     }
 
-#endif
-
-    void Start()
+    public void OnPointerClick(PointerEventData eventData)
     {
-        Rename();
+        PlayAudio(a_clicked);
+        Publish(MessageLayer.GUI, "buttonclick", gameObject.name.ToLower());
     }
 
-    void Rename()
-    { 
-        Text _text = GetComponentInChildren<Text>();
-        if (_text.text != name)
+    private void PlayAudio(AudioClip clip)
+    {
+        if (a_source == null)
         {
-            _text.text = name;
+            Debug.Log("no audio attached to " + name);
+            return;
         }
+        a_source.PlayOneShot(clip);
+    }
 
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        Debug.Log("exit pointer");
+        GetComponent<Animator>().SetTrigger("Normal");
     }
 }

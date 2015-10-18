@@ -11,7 +11,7 @@ namespace gui
     public class UIRoot : MonoBehaviour, ISubscriber
     {
         [SerializeField]
-        private GameObject _combatPanel;        
+        private GameObject _combatPanel;
 
         [SerializeField]
         private GameObject _infoPanel;
@@ -74,11 +74,11 @@ namespace gui
         /// <param name="state"></param>
         void OnCombatChange(string state)
         {
-            Debug.Log("ui change from combat with " + state);
+            // Debug.Log("ui change from combat with " + state);
             _beginPanel.SetActive(false);
-            _combatPanel.SetActive(false);
+            //_combatPanel.SetActive(false);
             _resolvePanel.SetActive(false);
-            _phasePanel.SetActive(false);
+            //  _phasePanel.SetActive(false);
 
             state = state.ToLower();
             switch (state)
@@ -87,16 +87,14 @@ namespace gui
                     break;//setup gui
                 case "start":
                     _phasePanel.SetActive(true);
-                    break;
-                case "active":
-                    _phasePanel.SetActive(true);
                     _combatPanel.SetActive(true);
                     break;
+                case "active":
+                    break;
                 case "endturn":
-                    _phasePanel.SetActive(true);
                     break;
                 case "resolve":
-                    _resolvePanel.SetActive(true); 
+                    _resolvePanel.SetActive(true);
                     break;
 
             }
