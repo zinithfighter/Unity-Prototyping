@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Ability : MonoBehaviour {
-
-
+[ExecuteInEditMode]
+public class Ability : MonoBehaviour
+{
     void Awake()
     {
-        transform.parent = GameObject.Find("Buttons").transform;
-
+        Debug.Log("set parent");
+        GameObject parent = FindObjectOfType<UIAbilitites>().gameObject as GameObject;        
+        transform.parent = parent.transform;
     }
 }
