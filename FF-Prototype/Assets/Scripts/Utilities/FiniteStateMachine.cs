@@ -144,14 +144,13 @@ namespace FiniteStateMachine
         /// for example string or integer values </typeparam>
         /// <param name="input"></param>
         /// <returns></returns>
-        public bool Feed(string token)
+        public bool Feed(string token, bool immediate = false)
         {
-          
-            if (token == "*")
+            if (immediate)
             {
                 currentState.Handler();
                 return true;
-            } 
+            }
 
             foreach (Transition t in table[currentState.name])
             {

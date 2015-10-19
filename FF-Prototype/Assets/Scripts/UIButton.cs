@@ -7,7 +7,8 @@ public class UIButton : Observer, IPointerEnterHandler, IPointerClickHandler, IP
     public AudioClip a_hovered;
     public AudioClip a_clicked;
     private AudioSource a_source;
- public void Awake()
+
+    public void Awake()
     {
         a_source = GetComponent<AudioSource>();
     }
@@ -34,7 +35,6 @@ public class UIButton : Observer, IPointerEnterHandler, IPointerClickHandler, IP
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        
         GetComponent<Animator>().SetTrigger("Normal");
     }
 }

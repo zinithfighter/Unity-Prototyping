@@ -3,141 +3,66 @@ using System.Collections.Generic;
 using FiniteStateMachine;
 using Party;
 
+
 namespace Combat
 {
+
     enum State
     {
         INIT,
         START,
         ACTIVE,
-        PAUSED,
-        TARGET,     
-        ENDTURN,   
+        TARGET,
         RESOLVE, //Determine if this party needs to be changed out
+        ENDTURN,
         EXIT,
     }
 
     //responsible for intercepting gui input and relaying it
     public class CombatSystem : Observer
     {
+        public delegate void CombatAction();
+        public delegate void CombatAction<T>(T arg);
+        public static event CombatAction OnCombatStart;
+        public static event CombatAction OnAbilitySelected;
+
         void Awake()
         {
-            fsm = new FiniteStateMachine<State>();
-            fsm.State(State.INIT, InitHandler);
-            fsm.State(State.START, StartHandler);
-            fsm.State(State.ACTIVE, ActiveHandler);
-            fsm.State(State.TARGET, TargetHandler);
-            fsm.State(State.RESOLVE, ResolveHandler);
-            fsm.State(State.ENDTURN, EndTurnHandler);
-            fsm.State(State.EXIT, ExitHandler);
-
-            fsm.Transition(State.INIT, State.START, "start");//combat
-
-            fsm.Transition(State.START, State.ACTIVE, "space");//input
-
-            fsm.Transition(State.ACTIVE, State.ENDTURN, "endturn");//gui
-            fsm.Transition(State.ACTIVE, State.ENDTURN, "space");//gui
-
-            fsm.Transition(State.ENDTURN, State.RESOLVE, "turn");//party
-
-            fsm.Transition(State.RESOLVE, State.ACTIVE, "space");//input
-            fsm.Transition(State.RESOLVE, State.START, "exit");//party
-            fsm.Transition(State.RESOLVE, State.EXIT, "quit");//party
-
-            UpdateFSM("*");
+            Subscribe<string>(MessageLayer.GUI, "button clicked", CombatEvents);
         }
 
         void Start()
         {
-            UpdateFSM("start");
-        }        
-
-        void UpdateFSM(string input)
-        {
-           // Debug.Log("feed combat fsm with " + input);
-            fsm.Feed(input);
+            Execute(OnCombatStart);
         }
 
-        void OnStateChange(State state)
+        void CombatEvents(string input)
         {
-            Debug.Log("State change: Combat: " + state.ToString().ToLower());
-            Publish(MessageLayer.COMBAT, "enter state", state.ToString().ToLower());
+            Execute(OnAbilitySelected, input);
         }
 
-        void InitHandler()
+        void Execute(CombatAction action)
         {
-            //input events that will drive this fsm
-            //"space" "escape"
-            Subscribe<string>(MessageLayer.INPUT, "key down", UpdateFSM);
-            //gui events that will drive this fsm
-            //"attack" "end turn" "defend"
-            Subscribe<string>(MessageLayer.GUI, "button click", UpdateFSM);
-
-            //trigger resolve to active for this machine
-            Subscribe<string>(MessageLayer.PARTY, "state change", UpdateFSM);
-            Subscribe<string>(MessageLayer.GAME, "state change", UpdateFSM);
-            _combatParties = ChuTools.PopulateFromChildren<CombatParty>(transform);
-            _partyIndex = 0;
+            if (action != null)
+                action();
         }
 
-        void StartHandler()
+        void Execute<T>(CombatAction<T> action, T arg)
         {
-            OnStateChange(State.START);            
-            currentParty = _combatParties[_partyIndex];
-            Publish(MessageLayer.COMBAT, "party change", currentParty);    
+            if (action != null)
+                action(arg);
         }
 
-        void ActiveHandler()
-        {            
-            OnStateChange(State.ACTIVE);
-            currentParty.Activate();
-        }
-
-        void EndTurnHandler()
-        {
-            OnStateChange(State.ENDTURN);
-        }
-
-        void ResolveHandler()
-        {
-            OnStateChange(State.RESOLVE);
-            if (_partyIndex >= _combatParties.Count - 1)
-            {
-                _partyIndex = 0;
-                return;
-            }  
-            
-            if(currentParty.turnsTaken >= currentParty.partySize -1)
-            {
-                _partyIndex++;
-            }
-            
-        }
-        
-        void TargetHandler()
-        {
-            OnStateChange(State.TARGET);
-        }
-
-        void ExitHandler()
-        {
-            OnStateChange(State.EXIT);
-        }        
-
-        #region Variables
-
-
-        private FiniteStateMachine<State> fsm;
+        #region Variables 
 
         [SerializeField]
         private List<CombatParty> _combatParties;
 
         [SerializeField]
-        private CombatParty currentParty;
+        private CombatParty _currentParty;
 
-         
-
-        int _partyIndex;
+        [SerializeField]
+        private int _partyIndex;
 
         #endregion Variables
     }

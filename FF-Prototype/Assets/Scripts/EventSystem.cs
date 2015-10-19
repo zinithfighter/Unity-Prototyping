@@ -38,10 +38,24 @@ static public class EventSystem
             Callback<T> s = d as Callback<T>;
             if (s != null)
                 s(arg);
-
         }
     }
- 
+
+    static public void Broadcast<T,V>(MessageLayer t, string e, T arg1, V arg2)
+    {
+        string eventType = format(t, e).Replace(" ", string.Empty).ToLower();
+        // Debug.Log("Event Broadcast: " + eventType);
+        Delegate d;
+        if (_eventTable.TryGetValue(eventType, out d))
+        {
+            //Debug.Log("execute " + message);
+            Callback<T,V> s = d as Callback<T,V>;
+            if (s != null)
+                s(arg1, arg2);
+        }
+    }
+
+
     /// <summary>
     /// subscribe to a message without providing arguments for the delegate
     /// </summary>

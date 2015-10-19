@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using Combat;
 
 namespace gui
 {
@@ -43,9 +44,15 @@ namespace gui
             _beginPanel.SetActive(false);
             _combatPanel.SetActive(false);
             _resolvePanel.SetActive(false);
+
+            CombatSystem.OnCombatStart += OnCombatStart;
         }
 
-
+        void OnCombatStart()
+        {
+            _phasePanel.SetActive(true);
+            _combatPanel.SetActive(true);
+        }
         /// <summary>
         /// when the user hovers over a different ability 
         /// </summary>
@@ -86,8 +93,7 @@ namespace gui
                 case "init":
                     break;//setup gui
                 case "start":
-                    _phasePanel.SetActive(true);
-                    _combatPanel.SetActive(true);
+
                     break;
                 case "active":
                     break;
@@ -98,10 +104,7 @@ namespace gui
                     break;
 
             }
-        }
-
-
-
+        } 
 
         public void Subscribe(MessageLayer t, string e, Callback c)
         {

@@ -13,10 +13,24 @@ namespace Unit
 
     public class CombatUnit : MonoBehaviour, IUnit
     {
+        void OnActive()
+        {
+            Animator anim = GetComponentInChildren<Animator>();
+            anim.SetTrigger("idle");
+        }
 
-        public void SetState(State state)
+        void OnIdle()
+        {
+            Animator anim = GetComponentInChildren<Animator>();
+            anim.SetTrigger("idle");
+        }
+
+        void OnAbilitySelected()
         {
 
+        }
+        public void SetState(State state)
+        {
             Animator anim = GetComponentInChildren<Animator>();
 
             switch (state)
