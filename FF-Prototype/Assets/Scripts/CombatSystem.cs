@@ -17,6 +17,7 @@ namespace Combat
         EXIT,
     }
 
+    //responsible for intercepting gui input and relaying it
     public class CombatSystem : Observer
     {
         void Awake()

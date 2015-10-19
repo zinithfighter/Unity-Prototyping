@@ -38,7 +38,7 @@ namespace gui
         void Awake()
         {
             Subscribe<string>(MessageLayer.COMBAT, "enter state", OnCombatChange);
-            Subscribe<CombatUnit>(MessageLayer.UNIT, "Unit Change", OnUnitChange);
+            Subscribe<Unit.CombatUnit>(MessageLayer.UNIT, "Unit Change", OnUnitChange);
 
             _beginPanel.SetActive(false);
             _combatPanel.SetActive(false);
@@ -59,7 +59,7 @@ namespace gui
         /// when the unit changes update the info text
         /// </summary>
         /// <param name="arg"></param>
-        void OnUnitChange(CombatUnit arg)
+        void OnUnitChange(Unit.CombatUnit arg)
         {
             //Debug.Log("ui unit change");
             _partyInfo.text =

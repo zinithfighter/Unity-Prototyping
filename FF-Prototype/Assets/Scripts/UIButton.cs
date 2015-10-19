@@ -34,7 +34,7 @@ public class UIButton : Observer, IPointerEnterHandler, IPointerClickHandler, IP
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        Debug.Log("exit pointer");
+        
         GetComponent<Animator>().SetTrigger("Normal");
     }
 }

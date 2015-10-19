@@ -18,9 +18,9 @@ public class Test : MonoBehaviour, IPublisher, ISubscriber
         {
             if (u.GetComponent<IUnit>() != null)
             {
-                string att = u.GetComponent<IUnit>().attack.ToString();
-                string hp = u.GetComponent<IUnit>().health.ToString();
-                string def = u.GetComponent<IUnit>().defense.ToString(); 
+                //string att = u.GetComponent<IUnit>().attack.ToString();
+                //string hp = u.GetComponent<IUnit>().health.ToString();
+                //string def = u.GetComponent<IUnit>().defense.ToString(); 
             }
         } 
     }

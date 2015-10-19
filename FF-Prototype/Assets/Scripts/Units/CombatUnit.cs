@@ -1,42 +1,62 @@
 ﻿using UnityEngine;
-using FiniteStateMachine; 
 
-public class CombatUnit : Observer, IUnit
-{ 
-    public void SetActive(bool active)
+namespace Unit
+{
+    public enum State
     {
-        Publish(MessageLayer.UNIT, "unit change", this);
-        Debug.Log("set unit " + active);
-        _active = active;
-        Animator anim = GetComponentInChildren<Animator>();
-        if (_active)
-        {
-            anim.SetTrigger("idle");
-        }
-        else
-        {
-            anim.SetTrigger("noidle");
-        }
-        
+        idle,
+        ready,
+        attack,
+        defend,
+        dead,
     }
 
-    
+    public class CombatUnit : MonoBehaviour, IUnit
+    {
 
-    #region Variables
-    [SerializeField]
-    int _health;
-    [SerializeField]
-    float _attack;
-    [SerializeField]
-    float _defense;
-    [SerializeField]
-    bool _active;
- 
+        public void SetState(State state)
+        {
 
-    public float attack { get { return _attack; } set { _attack = value; } }
+            Animator anim = GetComponentInChildren<Animator>();
 
-    public float defense { get { return _defense; } set { _defense = value; } }
+            switch (state)
+            {
+                case State.idle:
+                    anim.SetTrigger("idle");
+                    break;
+                case State.ready:
+                    anim.SetTrigger("ready");
+                    break;
+                case State.attack:
+                    anim.SetTrigger("attack");
+                    break;
+                case State.defend:
+                    anim.SetTrigger("defend");
+                    break;
+                case State.dead:
+                    anim.SetTrigger("dead");
+                    break;
+            }
+        }
 
-    public int health { get { return _health; } set { _health = value; } }
-    #endregion Variables
+
+
+        #region Variables
+        [SerializeField]
+        int _health;
+        [SerializeField]
+        float _attack;
+        [SerializeField]
+        float _defense;
+        [SerializeField]
+        bool _active;
+
+
+        public float attack { get { return _attack; } set { _attack = value; } }
+
+        public float defense { get { return _defense; } set { _defense = value; } }
+
+        public int health { get { return _health; } set { _health = value; } }
+        #endregion Variables
+    }
 }

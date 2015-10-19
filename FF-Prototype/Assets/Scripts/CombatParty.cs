@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using FiniteStateMachine;
+using Unit;
+
 namespace Party
 { /// <summary>
   /// keeps track of all units in this group and manages them
@@ -87,7 +89,7 @@ namespace Party
         {
             OnStateChange(State.ACTIVE);
             _currentUnit = _partyMembers[_unitIndex];
-            _currentUnit.SetActive(true);
+            _currentUnit.SetState(Unit.State.idle);
         }
 
         void TurnHandler()
@@ -95,13 +97,13 @@ namespace Party
             OnStateChange(State.TURN);
             if (_unitIndex >= _partyMembers.Count - 1)
             {
-                _currentUnit.SetActive(false);
+                _currentUnit.SetState(Unit.State.ready);
                 _currentUnit = null;
                 UpdateFSM("done");
                 return;
             }
 
-            _currentUnit.SetActive(false);
+            _currentUnit.SetState(Unit.State.idle);
             _unitIndex++; //increment the unit index  
             turnsTaken++;
         }
