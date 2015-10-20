@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 
 namespace Unit
 {
@@ -11,11 +12,64 @@ namespace Unit
         dead,
     }
 
+    public enum Direction
+    {
+        forward,
+        back,
+    }
+
     public class CombatUnit : MonoBehaviour, IUnit
     {
+        Animator anim;
+        void Awake()
+        {
+            anim = GetComponentInChildren<Animator>();
+            if (_active)
+            {
+                Combat.CombatSystem.OnAbilitySelected += Attack;
+            }
+
+            source = transform.position;
+        }
+
+        public Vector3 source;
+        void Attack()
+        {
+            print("move " + name);
+            StartCoroutine(Move(target.position));
+        }
+        
+        public Transform target;
+        public float offset = .02f;
+        IEnumerator Move(Vector3 destination)
+        { 
+            anim.SetTrigger("run");
+            while (transform.position != destination)
+            {
+                float distance = Vector3.Magnitude(transform.position - destination);
+                if (distance < offset)
+                    break;
+                print("distance from target = " + distance);
+                transform.position = Vector3.MoveTowards(transform.position, destination, .03f);
+                yield return null;
+
+            }
+            anim.SetTrigger("uppercut");
+            yield return new WaitForSeconds(anim.GetCurrentAnimatorStateInfo(0).normalizedTime);
+            print("anim finished");
+            RunBack();
+            
+
+
+        }
+
+        void RunBack()
+        {
+            StartCoroutine(Move(source));
+        }
         void OnActive()
         {
-            Animator anim = GetComponentInChildren<Animator>();
+
             anim.SetTrigger("idle");
         }
 

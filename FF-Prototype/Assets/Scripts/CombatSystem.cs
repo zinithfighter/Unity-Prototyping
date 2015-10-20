@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using FiniteStateMachine;
 using Party;
+using System;
 
 
 namespace Combat
@@ -28,7 +29,7 @@ namespace Combat
 
         void Awake()
         {
-            Subscribe<string>(MessageLayer.GUI, "button clicked", CombatEvents);
+            Subscribe<string>(MessageLayer.GUI, "buttonclick", CombatEvents);
         }
 
         void Start()
@@ -38,7 +39,7 @@ namespace Combat
 
         void CombatEvents(string input)
         {
-            Execute(OnAbilitySelected, input);
+            Execute(OnAbilitySelected);
         }
 
         void Execute(CombatAction action)
@@ -47,10 +48,14 @@ namespace Combat
                 action();
         }
 
-        void Execute<T>(CombatAction<T> action, T arg)
+        void Execute<T>(CombatAction action, T arg)
         {
-            if (action != null)
-                action(arg);
+            Debug.Log("execute with " + arg.ToString());
+            Delegate d = action;
+            CombatAction<T> ca = d as CombatAction<T>;
+            if (ca != null)
+                ca(arg);
+                
         }
 
         #region Variables 

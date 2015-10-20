@@ -7,6 +7,7 @@ public class UIButton : Observer, IPointerEnterHandler, IPointerClickHandler, IP
     public AudioClip a_hovered;
     public AudioClip a_clicked;
     private AudioSource a_source;
+    public bool sound;
 
     public void Awake()
     {
@@ -21,16 +22,20 @@ public class UIButton : Observer, IPointerEnterHandler, IPointerClickHandler, IP
     {
         PlayAudio(a_clicked);
         Publish(MessageLayer.GUI, "buttonclick", gameObject.name.ToLower());
+        Debug.Log("button click");
     }
 
     private void PlayAudio(AudioClip clip)
     {
-        if (a_source == null)
+        if (sound)
         {
-            Debug.Log("no audio attached to " + name);
-            return;
+            if (a_source == null)
+            {
+                Debug.Log("no audio attached to " + name);
+                return;
+            }
+            a_source.PlayOneShot(clip);
         }
-        a_source.PlayOneShot(clip);
     }
 
     public void OnPointerExit(PointerEventData eventData)
