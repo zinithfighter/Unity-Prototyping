@@ -30,9 +30,11 @@ namespace Unit
             }
 
             source = transform.position;
+            
         }
 
         public Vector3 source;
+        
         void Attack()
         {
             print("move " + name);
@@ -42,30 +44,56 @@ namespace Unit
         public Transform target;
         public float offset = .02f;
         IEnumerator Move(Vector3 destination)
-        { 
-            anim.SetTrigger("run");
+        {
+            
+            Vector3 facing =  Vector3.Normalize(destination - transform.position);
+            transform.rotation = Quaternion.LookRotation(facing, Vector3.up);
+            
             while (transform.position != destination)
             {
+                Debug.DrawLine(destination, transform.position);
                 float distance = Vector3.Magnitude(transform.position - destination);
+                float speed = Time.deltaTime /distance;
+                anim.SetFloat("Speed", .75f);
                 if (distance < offset)
                     break;
-                print("distance from target = " + distance);
-                transform.position = Vector3.MoveTowards(transform.position, destination, .03f);
+                label.text = speed.ToString();
+                
+                transform.position = Vector3.MoveTowards(transform.position, destination, step);
                 yield return null;
 
             }
             anim.SetTrigger("uppercut");
             yield return new WaitForSeconds(anim.GetCurrentAnimatorStateInfo(0).normalizedTime);
             print("anim finished");
-            RunBack();
-            
-
-
+            yield return StartCoroutine(RunBack()); 
         }
 
-        void RunBack()
+        public float step = .06f;
+        public UnityEngine.UI.Text label;
+        IEnumerator RunBack()
         {
-            StartCoroutine(Move(source));
+            
+            Vector3 facing = Vector3.Normalize(source - transform.position);
+            transform.rotation = Quaternion.LookRotation(facing, Vector3.up); 
+            anim.SetTrigger("run");
+            
+            while (transform.position != source)
+            {
+                Debug.DrawLine(source, transform.position);
+                float distance = Vector3.Magnitude(transform.position - source);
+                if (distance < offset)
+                    break;
+                label.text = distance.ToString();
+                transform.position = Vector3.MoveTowards(transform.position, source, step);
+                yield return null;
+
+            }
+            anim.SetTrigger("idle");
+            transform.rotation = Quaternion.LookRotation(facing * -1, Vector3.up);
+            StopAllCoroutines();
+            
+                
         }
         void OnActive()
         {

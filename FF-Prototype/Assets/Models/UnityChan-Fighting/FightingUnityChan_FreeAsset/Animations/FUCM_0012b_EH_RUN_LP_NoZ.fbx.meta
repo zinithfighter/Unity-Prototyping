@@ -394,6 +394,14 @@ ModelImporter:
     4300052: poly_SkirtLB
     4300054: poly_SkirtRF
     4300056: poly_SkirtRB
+    6400000: BLW_DEF
+    6400002: EL_DEF
+    6400004: eye_base_old
+    6400006: EYE_DEF
+    6400008: eye_L_old
+    6400010: eye_R_old
+    6400012: head_back
+    6400014: MTH_DEF
     7400000: Run
     9500000: //RootNode
     13700000: BLW_DEF
@@ -431,8 +439,11 @@ ModelImporter:
     optimizeGameObjects: 0
     motionNodeName: 
     animationImportErrors: 
-    animationImportWarnings: "\nInbetween bone default rotation found in this file
-      is different from the one found in the source avatar:\n\t'Character1_Spine'
+    animationImportWarnings: "\nDefault bone length found in this file is different
+      form the one found in the source avatar:\n\t'Character1_LeftFoot' : position
+      error = 1.034765 mm\n\t'Character1_RightFoot' : position error = 1.035517 mm\n\t'Character1_RightHand'
+      : position error = 1.283812 mm\n\nInbetween bone default rotation found in this
+      file is different from the one found in the source avatar:\n\t'Character1_Spine'
       : rotation error = 56.176121 deg\n\nClip 'Take 001' has import animation warnings
       that might lower retargeting quality:\nNote: Activate translation DOF on avatar
       to improve retargeting quality.\n\t'Character1_Spine' is inbetween humanoid
@@ -458,12 +469,12 @@ ModelImporter:
       loop: 0
       loopTime: 1
       loopBlend: 0
-      loopBlendOrientation: 0
+      loopBlendOrientation: 1
       loopBlendPositionY: 0
       loopBlendPositionXZ: 0
-      keepOriginalOrientation: 0
+      keepOriginalOrientation: 1
       keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 0
+      keepOriginalPositionXZ: 1
       heightFromFeet: 0
       mirror: 0
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
@@ -772,37 +783,15 @@ ModelImporter:
         weight: 1
       - path: mesh_root
         weight: 1
-      - path: mesh_root/button
+      - path: mesh_root/poly_Body
         weight: 1
-      - path: mesh_root/cheek
+      - path: mesh_root/poly_SkirtLB
         weight: 1
-      - path: mesh_root/hair_accce
+      - path: mesh_root/poly_SkirtLF
         weight: 1
-      - path: mesh_root/hair_front
+      - path: mesh_root/poly_SkirtRB
         weight: 1
-      - path: mesh_root/hair_frontside
-        weight: 1
-      - path: mesh_root/hairband
-        weight: 1
-      - path: mesh_root/kutu
-        weight: 1
-      - path: mesh_root/Shirts
-        weight: 1
-      - path: mesh_root/shirts_sode
-        weight: 1
-      - path: mesh_root/shirts_sode_BK
-        weight: 1
-      - path: mesh_root/skin
-        weight: 1
-      - path: mesh_root/tail
-        weight: 1
-      - path: mesh_root/tail_bottom
-        weight: 1
-      - path: mesh_root/uwagi
-        weight: 1
-      - path: mesh_root/uwagi_BK
-        weight: 1
-      - path: mesh_root/uwagi_perker
+      - path: mesh_root/poly_SkirtRF
         weight: 1
       maskType: 0
       maskSource: {instanceID: 0}
