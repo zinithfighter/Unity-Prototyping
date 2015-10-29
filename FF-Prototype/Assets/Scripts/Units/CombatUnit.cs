@@ -54,7 +54,8 @@ namespace Unit
                 Debug.DrawLine(destination, transform.position);
                 float distance = Vector3.Magnitude(transform.position - destination);
                 float speed = Time.deltaTime /distance;
-                anim.SetFloat("Speed", .75f);
+                // anim.SetFloat("Speed", .75f);
+                anim.SetTrigger("run");
                 if (distance < offset)
                     break;
                 label.text = speed.ToString();
@@ -65,7 +66,7 @@ namespace Unit
             }
             anim.SetTrigger("uppercut");
             yield return new WaitForSeconds(anim.GetCurrentAnimatorStateInfo(0).normalizedTime);
-            print("anim finished");
+            anim.SetTrigger("idle");
             yield return StartCoroutine(RunBack()); 
         }
 
