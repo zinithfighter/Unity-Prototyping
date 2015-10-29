@@ -917,7 +917,7 @@ Prefab:
     - target: {fileID: 9500000, guid: 598e6778d4ed64f448263f2a52341d30, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: fe2cf524d4d00d64b88fc65920e10392, type: 2}
+      objectReference: {fileID: 9100000, guid: b63eaa132ac4dfe4a8b85ae3f094ca28, type: 2}
     - target: {fileID: 400078, guid: 598e6778d4ed64f448263f2a52341d30, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
@@ -983,7 +983,7 @@ Prefab:
     - target: {fileID: 9500000, guid: 7d3425a6c7317e048be11c2ff72db69e, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: e2cf68ff4b1ffda45a77f7307dd789b9, type: 2}
+      objectReference: {fileID: 9100000, guid: b63eaa132ac4dfe4a8b85ae3f094ca28, type: 2}
     - target: {fileID: 9500000, guid: 7d3425a6c7317e048be11c2ff72db69e, type: 3}
       propertyPath: m_ApplyRootMotion
       value: 0
