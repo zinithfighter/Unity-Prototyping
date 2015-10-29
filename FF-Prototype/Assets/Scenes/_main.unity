@@ -987,6 +987,10 @@ Prefab:
       propertyPath: m_Name
       value: Skadi
       objectReference: {fileID: 0}
+    - target: {fileID: 400078, guid: 598e6778d4ed64f448263f2a52341d30, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 598e6778d4ed64f448263f2a52341d30, type: 3}
   m_IsPrefabParent: 0
