@@ -18,8 +18,13 @@ namespace Unit
         back,
     }
 
+    
+
     public class CombatUnit : MonoBehaviour, IUnit
     {
+
+        public Camera defaultCam;
+        public Camera battleCam;
         Animator anim;
         void Awake()
         {
@@ -38,6 +43,8 @@ namespace Unit
         void Attack()
         {
             print("move " + name);
+            defaultCam.enabled = false;
+            battleCam.enabled = true;
             StartCoroutine(Move(target.position));
         }
         
@@ -92,6 +99,8 @@ namespace Unit
             
             transform.rotation = Quaternion.LookRotation(facing * -1, Vector3.up);
             anim.SetTrigger("idle");
+            defaultCam.enabled = true;
+            battleCam.enabled = false;
             StopAllCoroutines();
             
                 
