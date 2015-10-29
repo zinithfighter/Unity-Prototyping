@@ -48,14 +48,13 @@ namespace Unit
             
             Vector3 facing =  Vector3.Normalize(destination - transform.position);
             transform.rotation = Quaternion.LookRotation(facing, Vector3.up);
-            
+            anim.SetTrigger("run");
             while (transform.position != destination)
             {
                 Debug.DrawLine(destination, transform.position);
                 float distance = Vector3.Magnitude(transform.position - destination);
-                float speed = Time.deltaTime /distance;
-                // anim.SetFloat("Speed", .75f);
-                anim.SetTrigger("run");
+                float speed = Time.deltaTime /distance; 
+               
                 if (distance < offset)
                     break;
                 label.text = speed.ToString();
@@ -65,9 +64,9 @@ namespace Unit
 
             }
             anim.SetTrigger("uppercut");
-            yield return new WaitForSeconds(anim.GetCurrentAnimatorStateInfo(0).normalizedTime);
             anim.SetTrigger("idle");
-            yield return StartCoroutine(RunBack()); 
+            yield return new WaitForSeconds(2.0f);
+            yield return StartCoroutine("RunBack");
         }
 
         public float step = .06f;
@@ -90,8 +89,9 @@ namespace Unit
                 yield return null;
 
             }
-            anim.SetTrigger("idle");
+            
             transform.rotation = Quaternion.LookRotation(facing * -1, Vector3.up);
+            anim.SetTrigger("idle");
             StopAllCoroutines();
             
                 
