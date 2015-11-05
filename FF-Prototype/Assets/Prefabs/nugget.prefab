@@ -33,7 +33,7 @@ GameObject:
   - 114: {fileID: 11446024}
   - 114: {fileID: 11466540}
   m_Layer: 5
-  m_Name: Nugget
+  m_Name: nugget
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -320,6 +320,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   a_hovered: {fileID: 8300000, guid: 28d7d71eba401c948b9d44c404d73669, type: 3}
   a_clicked: {fileID: 8300000, guid: a05901641fc88bc4997dca2b695ed126, type: 3}
+  sound: 0
 --- !u!114 &11466540
 MonoBehaviour:
   m_ObjectHideFlags: 1
