@@ -199,6 +199,43 @@ ModelImporter:
     100382: SkahdiRig_tongue_01_01SHJnt
     100384: SkahdiRig_tongue_01_02SHJnt
     100386: SkahdiRig_tongue_01_03SHJnt
+    100388: BeltMesh
+    100390: BodyGroup
+    100392: BuckleMesh1
+    100394: BuckleMesh2
+    100396: EyebrowMeshL
+    100398: EyebrowMeshR
+    100400: EyebrwMeshR
+    100402: EyeL
+    100404: EyeR
+    100406: HairGroup
+    100408: HairMesh2
+    100410: HairMesh3
+    100412: HairMesh4
+    100414: HairMesh5
+    100416: HairMesh6
+    100418: HairMesh7
+    100420: HairMesh8
+    100422: HairMesh9
+    100424: HeadGroup
+    100426: HeadMesh
+    100428: HornMeshL
+    100430: MouthGroup
+    100432: NecklaceMesh1
+    100434: NecklaceMesh2
+    100436: ShakleGroup
+    100438: ShakleMesh1
+    100440: ShakleMesh2
+    100442: ShakleMesh3
+    100444: ShakleMesh4
+    100446: ShakleMesh5
+    100448: ShakleMesh6
+    100450: ShakleMesh7
+    100452: ShirtMesh
+    100454: TeethMesh1
+    100456: TeethMesh2
+    100458: TongueMesh
+    100460: TorsoMesh
     400000: group
     400002: group3
     400004: HairMesh1
@@ -393,6 +430,43 @@ ModelImporter:
     400382: SkahdiRig_tongue_01_01SHJnt
     400384: SkahdiRig_tongue_01_02SHJnt
     400386: SkahdiRig_tongue_01_03SHJnt
+    400388: BeltMesh
+    400390: BodyGroup
+    400392: BuckleMesh1
+    400394: BuckleMesh2
+    400396: EyebrowMeshL
+    400398: EyebrowMeshR
+    400400: EyebrwMeshR
+    400402: EyeL
+    400404: EyeR
+    400406: HairGroup
+    400408: HairMesh2
+    400410: HairMesh3
+    400412: HairMesh4
+    400414: HairMesh5
+    400416: HairMesh6
+    400418: HairMesh7
+    400420: HairMesh8
+    400422: HairMesh9
+    400424: HeadGroup
+    400426: HeadMesh
+    400428: HornMeshL
+    400430: MouthGroup
+    400432: NecklaceMesh1
+    400434: NecklaceMesh2
+    400436: ShakleGroup
+    400438: ShakleMesh1
+    400440: ShakleMesh2
+    400442: ShakleMesh3
+    400444: ShakleMesh4
+    400446: ShakleMesh5
+    400448: ShakleMesh6
+    400450: ShakleMesh7
+    400452: ShirtMesh
+    400454: TeethMesh1
+    400456: TeethMesh2
+    400458: TongueMesh
+    400460: TorsoMesh
     4300000: polySurface2
     4300002: polySurface3
     4300004: polySurface4
@@ -426,6 +500,39 @@ ModelImporter:
     4300060: polySurface49
     4300062: polySurface51
     4300064: polySurface35
+    4300066: NecklaceMesh1
+    4300068: NecklaceMesh2
+    4300070: BuckleMesh1
+    4300072: BuckleMesh2
+    4300074: BeltMesh
+    4300076: ShirtMesh
+    4300078: TorsoMesh
+    4300080: EyebrowMeshL
+    4300082: HornMeshL
+    4300084: EyebrowMeshR
+    4300086: EyebrwMeshR
+    4300088: HeadMesh
+    4300090: ShakleMesh1
+    4300092: ShakleMesh2
+    4300094: ShakleMesh3
+    4300096: ShakleMesh4
+    4300098: ShakleMesh5
+    4300100: ShakleMesh6
+    4300102: ShakleMesh7
+    4300104: TeethMesh1
+    4300106: TeethMesh2
+    4300108: TongueMesh
+    4300110: EyeL
+    4300112: EyeR
+    4300114: HairMesh1
+    4300116: HairMesh2
+    4300118: HairMesh3
+    4300120: HairMesh4
+    4300122: HairMesh5
+    4300124: HairMesh6
+    4300126: HairMesh7
+    4300128: HairMesh8
+    4300130: HairMesh9
     9500000: //RootNode
     13700000: pasted__polySurface495
     13700002: pasted__polySurface496
@@ -460,6 +567,39 @@ ModelImporter:
     13700060: polySurface7
     13700062: pSphere1
     13700064: pSphere2
+    13700066: BeltMesh
+    13700068: BuckleMesh1
+    13700070: BuckleMesh2
+    13700072: EyebrowMeshL
+    13700074: EyebrowMeshR
+    13700076: EyebrwMeshR
+    13700078: EyeL
+    13700080: EyeR
+    13700082: HairMesh1
+    13700084: HairMesh2
+    13700086: HairMesh3
+    13700088: HairMesh4
+    13700090: HairMesh5
+    13700092: HairMesh6
+    13700094: HairMesh7
+    13700096: HairMesh8
+    13700098: HairMesh9
+    13700100: HeadMesh
+    13700102: HornMeshL
+    13700104: NecklaceMesh1
+    13700106: NecklaceMesh2
+    13700108: ShakleMesh1
+    13700110: ShakleMesh2
+    13700112: ShakleMesh3
+    13700114: ShakleMesh4
+    13700116: ShakleMesh5
+    13700118: ShakleMesh6
+    13700120: ShakleMesh7
+    13700122: ShirtMesh
+    13700124: TeethMesh1
+    13700126: TeethMesh2
+    13700128: TongueMesh
+    13700130: TorsoMesh
   materials:
     importMaterials: 1
     materialName: 0
@@ -467,15 +607,9 @@ ModelImporter:
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
-    optimizeGameObjects: 0
+    optimizeGameObjects: 1
     motionNodeName: 
-    animationImportErrors: '
-
-      Imported file ''SkadiFBXTpose'' conversion failed: Cannot find root motion transform
-      ''Character1_Hips''
-
-
-'
+    animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
